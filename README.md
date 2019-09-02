@@ -83,29 +83,30 @@ No JS os Array podem ser de diversos tipos.
 A *Orientação a Objetos* é uma das coisas mais importantes em programação, pois ele é reutilizável, limpo e funcional, onde tudo acontece em uma Classe.
 
 O comando **this** dentro de uma Classe nada mais é que uma referência a um atributo ou método daquela classe.
-
-exemplo:
-
+```js
+    // exemplo normal
     // criando uma classe celular
     let celular = function(){
     	this.cor = 'prata';
     	this.ligar = function() {
     		console.log('uma ligaçao');
     		return 'ligando';
-       }
+      }
     }
     let objeto = new celular(); //instancia da classe celular
     console.log(objeto.ligar());
+```
 exemplo ES6:
-
+```js
     class celular {
        constructor() {
     		this.cor = 'prata';
        }
        ligar() {
     	   console.log('uma ligaçao');
-           return 'ligando';
+         return 'ligando';
        }
     }
     let objeto = new celular();
     console.log(objeto.ligar());
+```
