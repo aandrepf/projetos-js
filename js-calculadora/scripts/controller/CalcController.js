@@ -43,24 +43,58 @@ class CalcController {
     return (['+', '-', '*', '%', '/'].indexOf(value) > -1);
   }
 
-  addOperation(value) {
+  pushOperation(value) {
+    this._operation.push(value);
 
+    if (this._operation.length > 3) {
+      this.calc();
+    }
+  }
+
+  calc() {
+    let last = this._operation.pop(); // quando vier um outro operador no array, remove esse ultimo e guarda na variavel
+    let result = eval(this._operation.join(''));
+    this._operation = [result, last];
+    // atualizar o display da calculadora
+    this.setLastNumberOnDisplay();
+  }
+
+  setLastNumberOnDisplay() {
+    let lastNumber;
+    for(let i = this._operation.length -1; i >= 0; i--) {
+      if (!this.isOperator(this._operation[i])) { // se não for um operador
+        lastNumber = this._operation[i];
+        break;
+      }
+    }
+
+    this.displayCalc = lastNumber;
+  }
+
+  addOperation(value) {
     if (isNaN(this.getLastOperation())) {
         // quando for string
         if(this.isOperator(value)) {
           this.setLastOperation(value);
         } else if(isNaN(value)) {
-          console.log(value);
+          // outra coisa
         } else {
-          this._operation.push(value);
+          this.pushOperation(value);
+          // atualizar o display da calculadora
+          this.setLastNumberOnDisplay();
         }
     } else {
-      // quando for numero
-      let newValue = this.getLastOperation().toString() + value.toString();
-      this.setLastOperation(parseInt(newValue));
-    }
+      if (this.isOperator(value)) {
+        this.pushOperation(value);
+      }else {
+        // quando for numero
+        let newValue = this.getLastOperation().toString() + value.toString();
+        this.setLastOperation(parseInt(newValue));
 
-    console.log('Array operation', this._operation);
+        // atualizar o display da calculadora
+        this.setLastNumberOnDisplay();
+      }
+    }
   }
 
   setError() {

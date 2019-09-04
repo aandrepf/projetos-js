@@ -88,3 +88,22 @@ Ele é uma estrutura controladora de fluxo onde ele analisa casos e se algum ate
 **Array.length** = é uma propriedade do objeto *Array* que indica a quantidade de itens dentro do array.
 **Array.indexOf(value)** = ele busca no array o indice do value passado no parâmetro. Se encontrar ele retorna o numero do indice, senão retorna o valor **-1**.
 **window.isNaN(value)** = método em que verifica se o value passado no parâmetro **NÃO** é um número retornando um booleano.
+
+## eval
+**eval(codigo: string)** = Ele avalia uma sequencia de caracteres representando uma expressão JS, declaração, ou sequencias de declarações em formato string, podendo essas expressões incluir variaveis e propriedades de objetos existentes. Ele retorna o resultado do calculo da expressão passada. Se for vazio retornara *undefined*.
+```js
+var x = 2;
+var y = 39;
+var z = "42";
+eval("x + y + 1"); // retorna 42
+eval(z);           // retorna 42
+```
+
+## for
+**for(inicialização;condição;expressão final)** = é um loop que consiste em três expressões opcionais, separadas por ponto e virgula, seguidas por uma declaração ou sequencia de declarações executadas em sequencia.
+
+```js
+for (let i = 0; i < 9; i++) {
+   console.log(i);
+}
+```
