@@ -2,6 +2,8 @@ class CalcController {
   constructor(){
     this._locale = 'pt-BR';
     this._operation = [];
+    this._lastOperator = '';
+    this._lastNumber = '';
     this._displayCalcEl = document.querySelector('#display');
     this._dateEl = document.querySelector('#data');
     this._timeEl = document.querySelector('#hora');
@@ -15,6 +17,7 @@ class CalcController {
     setInterval(()=>{
       this.setDisplayDateTime();
     }, 1000);
+    this.setLastNumberOnDisplay();
   }
 
   addEventListenerAll(element, events, fn) {
@@ -23,12 +26,18 @@ class CalcController {
     });
   }
 
+  //ação do botão AC
   clearAll() {
     this._operation = [];
+    // atualizar o display da calculadora
+    this.setLastNumberOnDisplay();
   }
 
+  // ação do botão CE
   cancelEntry() {
     this._operation.pop();
+    // atualizar o display da calculadora
+    this.setLastNumberOnDisplay();
   }
 
   getLastOperation() {
@@ -51,23 +60,61 @@ class CalcController {
     }
   }
 
+  getResult() {
+    return eval(this._operation.join('')); // o eval faz a operação da expressão em string
+  }
+
   calc() {
-    let last = this._operation.pop(); // quando vier um outro operador no array, remove esse ultimo e guarda na variavel
-    let result = eval(this._operation.join(''));
-    this._operation = [result, last];
+    let last = '';
+    this._lastOperator = this.getLastItem(); // TRUE ou VAZIO retorna o ultimo operador
+
+    if(this._operation.length < 3) {
+      let firstItem = this._operation[0];
+      this._operation = [firstItem, this._lastOperator, this._lastNumber];
+    }
+
+    if(this._operation.length > 3) {
+      last = this._operation.pop(); // quando vier um outro operador no array, remove esse ultimo e guarda na variavel
+      this._lastNumber = this.getResult();
+    } else if(this._operation.length === 3) {
+      this._lastNumber = this.getLastItem(false); // FALSE retorna o ultimo numero
+    }
+
+    let result = this.getResult();
+
+    if(last === '%') {
+      result /= 100;
+      this._operation = [result]; // quando se trata de porcentagem o calculo é feito uma unica vez, portando o last é descartado
+    } else {
+      this._operation = [result];
+      if(last) this._operation.push(last);
+    }
+
     // atualizar o display da calculadora
     this.setLastNumberOnDisplay();
   }
 
-  setLastNumberOnDisplay() {
-    let lastNumber;
+  // PEGA O ULTIMO ITEM DENTRO DO ARRAY SE FOR OPERADOR RETORNA o operador
+  // SENÃO RETORNA O NUMERO
+  getLastItem(isOperator = true) {
+    let lastItem;
     for(let i = this._operation.length -1; i >= 0; i--) {
-      if (!this.isOperator(this._operation[i])) { // se não for um operador
-        lastNumber = this._operation[i];
+      if (this.isOperator(this._operation[i]) === isOperator) { // se for um operador
+        lastItem = this._operation[i];
         break;
       }
     }
 
+    if (!lastItem) {
+      lastItem = (isOperator) ? this._lastOperator : this._lastNumber;
+    }
+
+    return lastItem;
+  }
+
+  setLastNumberOnDisplay() {
+    let lastNumber = this.getLastItem(false);
+    if(!lastNumber) lastNumber = 0;
     this.displayCalc = lastNumber;
   }
 
@@ -125,6 +172,7 @@ class CalcController {
         this.addOperation('%');
       break;
       case 'igual':
+        this.calc();
       break;
       case 'ponto':
         this.addOperation('.');

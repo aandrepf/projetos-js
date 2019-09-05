@@ -86,7 +86,9 @@ Ele é uma estrutura controladora de fluxo onde ele analisa casos e se algum ate
 
 ## isNaN & Array.length
 **Array.length** = é uma propriedade do objeto *Array* que indica a quantidade de itens dentro do array.
+
 **Array.indexOf(value)** = ele busca no array o indice do value passado no parâmetro. Se encontrar ele retorna o numero do indice, senão retorna o valor **-1**.
+
 **window.isNaN(value)** = método em que verifica se o value passado no parâmetro **NÃO** é um número retornando um booleano.
 
 ## eval
