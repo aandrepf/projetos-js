@@ -6,6 +6,8 @@
 **variável** = espaço na memória usada para armazenar um valor. Para isso usamos o **var**.
 **timestamp** = quantidade em segundos desde 01/01/1970 até a data atual. Usada em diversas linguagens de programação. Em JS o valor da timestamp é em milissegundos.
 
+Uma boa prática importante é que sempre que possível, carregue os arquivos JS no final do arquivo index.html
+
 No ES6 e ES7 temos declarações de variáveis por escopo. Nesse caso temos o **let** (definida no bloco onde foi declarado e não mostra no restante do código) e o **const** que é uma constante onde seu valor nunca muda.
 
 **typeof** = comando usado para saber qual o tipo de dado de uma determinada variavel.
@@ -21,10 +23,13 @@ exemplo: var a = [];
 No JS as variáveis são fracamente tipa das, mas por ser dinâmica permite a tipagem das variáveis ou o parse das mesmas como por exemplo parseInt, parseFloat, toString
 
 **operadores**
+
 *atribuição ( = ),  comparação de valores ( == ), comparação de valor e tipo ( === ), diferentes valor ( != ), diferentes valor e tipo ( !== )*
 
 **operadores lógicos**
+
 *AND ( && ) - TRUE se as duas condições são verdadeiras*
+
 *OR ( || ) - TRUE se pelo menos uma das condições é verdadeira*
 
 **operador incremento ( ++ )**  = acrescenta 1 ao valor de uma variável toda vez que o loop passar por ela
@@ -51,7 +56,7 @@ Temos o **continue** que ele ignora as instruções e vai para a próxima repeti
 No JS os códigos são reaproveitáveis.
 
 ### Funções
-Esse conceito se aplica a **Funções** que são trechos de código que podem ser reutilizados e executam alguma coisa e retornam um resultado usando o *return* e depois esse mesmo encerra a função. Temos 3 tipos, função **comum** que tem um nome e faz algo e pode ser chamada quantas vezes for necessário, função **anonima** que não tem um nome definido e executa dentro de um trecho de código num determinado contexto e no ES¨temos as **arrow function** facilita a escrita de funções permitindo que o código não seja isolado e assim tendo alguns tipos de comportamentos dependendo de onde a mesma se encontra.
+Esse conceito se aplica a **Funções** que são trechos de código que podem ser reutilizados e executam alguma coisa e retornam um resultado usando o *return* e depois esse mesmo encerra a função. Temos 3 tipos, função **comum** que tem um nome e faz algo e pode ser chamada quantas vezes for necessário, função **anonima** que não tem um nome definido e executa dentro de um trecho de código num determinado contexto e no ES6 temos as **arrow function** facilita a escrita de funções permitindo que o código não seja isolado e assim tendo alguns tipos de comportamentos dependendo de onde a mesma se encontra.
 
 As funções podem ter **argumentos/parâmetros** que são variáveis criadas no momento da invocação da função e se caso a função tenha é obrigatório respeitar esses argumentos
 
@@ -66,6 +71,7 @@ Temos então os **Eventos** que são ações realizadas na aplicação que dispa
 **alvo.addEventListener(evento, callback)** = executa uma função de callback a partir do tipo de evento que o alvo recebe.
 
 **window** = é toda a janela do browser onde contém o document, histórico do usuário, podemos fazer refresh, mudar propriedades da mesma.
+
 **document** = é a aplicação em si.
 
 ### Objetos e Classes
