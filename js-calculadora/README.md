@@ -27,7 +27,7 @@ Sempre que tivermos um atributo ou método private é preciso do getter e setter
 **document.querySelector(selector: string).innerHTML** = insere uma informação em formato HTML dentro do elemento definido.
 
 *quanto mais interações com o DOM mais a aplicação vai ficando pesada*
-
+ 
 **BOM** = Browser Object Model, ou seja, faz referência aos objetos relacionados ao browser (objeto *Window* - usamos a palavra **window**)
 **window.close()** = método do objeto Window que fecha a janela ativa.
 
@@ -91,7 +91,7 @@ Ele é uma estrutura controladora de fluxo onde ele analisa casos e se algum ate
 
 **window.isNaN(value)** = método em que verifica se o value passado no parâmetro **NÃO** é um número retornando um booleano.
 
-## eval
+## eval 
 **eval(codigo: string)** = Ele avalia uma sequencia de caracteres representando uma expressão JS, declaração, ou sequencias de declarações em formato string, podendo essas expressões incluir variaveis e propriedades de objetos existentes. Ele retorna o resultado do calculo da expressão passada. Se for vazio retornara *undefined*.
 ```js
 var x = 2;
@@ -109,3 +109,53 @@ for (let i = 0; i < 9; i++) {
    console.log(i);
 }
 ```
+
+## indexOf
+**indexOf(valor, indice)** = retorna o índice da primeira ocorrência do valor especificado dentro do parâmetro. Retorna **-1** se não for encontrado. O segundo parametro por padrão começa a partir do indice 0;
+```js
+"Blue Whale".indexOf("Blue");     // retorna  0
+"Blue Whale".indexOf("Blute");    // retorna -1
+"Blue Whale".indexOf("Whale", 0); // retorna  5
+"Blue Whale".indexOf("Whale", 5); // retorna  5
+```
+
+## eventos de teclado
+**keydown** = evento ocorre quando a tecla é pressionada.
+**keypress** = evento ocorre quando a tecla pressionada é mantida pressionada.
+**keyup** = evento ocorre quando a tecla é solta.
+
+**clipboard** = área de transferência onde são copiados coisas que são usados em diversas aplicações.
+
+**document.createElement(elemento: string)** = cria um elemento dinamicamente de acordo com o tipo de elemento que foi setado no parametro
+
+**elemento.appendChild(filho)** = adiciona um nó (*Node*) ao final do elemento . Se o mesmo já existir ele é removido do elemento pai atual antes de ser adicionado ao novo pai.
+
+**elemento.select()** = é um evento do objeto *HTMLInputElement* que seleciona todo texto seja em um textarea ou um input, sem que seja necessário focar no input.
+
+**document.execCommand(comando:string)** = executa um comando que manipula uma região editavel como inputs de formulários ou elementos que são do tipo [contentEditable](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/contenteditable). Retorna um booleano se o comando não é suportado ou desativado. [clique aqui](https://devdocs.io/dom/document/execcommand) para ver a lista de comandos.
+
+**evento paste** = evento ocorre quando o usuario iniciou uma ação de colar no browser. Podemos acessar o conteudo que está na clipboard chamando o método **getData()** na propriedade **clipboardData**.
+
+```js
+const target = document.querySelector('div.target');
+target.addEventListener('paste', (event) => {
+   let paste = (event.clipboardData || window.clipboardData).getData('text');
+   paste = paste.toUpperCase();
+   event.preventDefault();
+});
+```
+
+## trabalhando com áudio
+Uma coisa importante no JS é que podemos trabalhar em conjunto com APIs externas que contém diversos recursos como áudio, vídeo, entre outras coisas o que torna interessante seu uso por conta de não precisarmos usar plugins como antigamente.
+
+**API Web Áudio** = disponibiliza um poderoso e versátil sistema de controle de áudio para a Web. Podemos escolher arquivos de áudio, adicionar efeitos nesses arquivos, criar reprodutores de audio, aplicar *spacial effects* e etc. Para saber mais [clique aqui](https://developer.mozilla.org/pt-BR/docs/Web/API/API_Web_Audio).
+
+**HTMLAudioElement** = é uma interface que provê acesso às propriedades dos elementos de audio, assim como os métodos para manipula-los também. Ele deriva da inteface **HTMLMediaElement**.
+
+```js
+mySound = new Audio([URLString]);
+```
+
+## tratando erros com try catch
+
+**try catch** = é um recurso que basicamente todas as linguagens de programação possuem onde podemos fazer tratamentos de erros. Ele tenta (**try**) executar algo, caso não consiga ele automaticamente cai no outro bloco (**catch**). Um detalhe importante, é que esse recurso deve ser sempre usado em áreas sensíveis da aplicação onde pode-se ter perdas consideráveis.
