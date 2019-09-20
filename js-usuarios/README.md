@@ -41,3 +41,21 @@ São ações que sempre retornam valor. Podemos ter também as **subRotinas** qu
 
 **return** = comando usado para retornar valores.
 
+# POO - Classes e MVC - MODEL
+
+**MODEL** = Onde as informações são armazenadas.
+**VIEW**  = É a interface que o usuário vê/interaje.
+**CONTROLLER** = Ele controla as regras de negócio e interações, ligando o MODEL a VIEW.
+
+Orientação de Objetos (um estilo de programação onde cria-se estruturas - *Classes* - e usamos em vários locais do código) ajuda a trabalhar melhor o código com reaproveitamento, abstração e outras coisas como o padrão MVC.
+
+Toda Classe começa com letra maiúscula.
+
+**constructor()** = método que é chamado automaticamente quando instanciamos a classe a qual ele pertence.
+
+Quando instanciamos uma classe com a palavra reservada *new*, ela passa a ser um Objeto.
+
+**instância de uma classe** = é quando criamos um Objeto através da palavra *new*, onde esse mesmo se torna uma cópia/representação dessa classe.
+
+# POO - Classes e MVC - CONTROLLER
+
