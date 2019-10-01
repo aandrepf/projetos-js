@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 var fields = document.querySelectorAll('#form-user-create [name]'); // [name] = pesquisa por campos que tenham o atributo 'name'
 var user = {};
 
@@ -42,3 +43,6 @@ document.getElementById('form-user-create').addEventListener('submit', function(
     
     addLine(objectUser);
 });
+=======
+var userController = new UserController('form-user-create', 'table-users')
+>>>>>>> 481dcf2d4e6dd35c1e5fc991d44fd3f68f55fa85
