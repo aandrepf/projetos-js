@@ -241,13 +241,7 @@ class CalcController {
     }
   }
 
-  pasteFromClipboard() {
-    document.addEventListener('paste', e => {
-      let text = e.clipboardData.getData('Text');
-      this.displayCalc = parseFloat(text);
-    });
-  }
-
+  // EVENTO DE COPIAR
   copyToClipboard() {
     let input = document.createElement('input');
     input.value = this.displayCalc;
@@ -257,6 +251,15 @@ class CalcController {
     input.remove();
   }
 
+  // EVENTO DE COLAR
+  pasteFromClipboard() {
+    document.addEventListener('paste', e => {
+      let text = e.clipboardData.getData('Text');
+      this.displayCalc = parseFloat(text);
+    });
+  }
+
+  // INICIA OS EVENTOS DE BOTÃO
   initButtonsEvents() {
     let buttons = document.querySelectorAll('#buttons > g, #parts > g');
     buttons.forEach((btn, index) =>{
@@ -271,6 +274,7 @@ class CalcController {
     });
   }
 
+  // INICIA OS EVENTOS DE TECLADO
   initKeyBoardEvents() {
     document.addEventListener('keyup', e => {
       this.playAudio();

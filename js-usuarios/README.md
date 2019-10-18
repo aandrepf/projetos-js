@@ -1,6 +1,8 @@
 
 # Projeto Usuários JS - Recursos Utilizados
 
+Template usado [AdminLTE](https://adminlte.io/themes/AdminLTE/)
+
 Uma premissa muito importante é que ao programar devemos deixar o código mais **genérico** possível.
 
 **SPA** = um padrão muito utilizado hoje em dia onde a aplicação funciona toda em uma unica pagina.
@@ -137,3 +139,62 @@ uma biblioteca interessante é o [moment.js](https://momentjs.com/)
 # Métodos Estáticos
 
 São métodos que não precisam de uma instancia de uma classe para serem invocados. Usamos a palavra reservada **static** para definir como estático.
+
+# Validando Forms
+
+**elemento.classList** = é uma coleção (conjunto de atributos e métodos de um objeto) de classes do elemento que foi referenciado.
+**elemento.classList.add(classeCss:string)** = adicionar na coleção de classes uma classe que foi definida dentro do parametro;
+
+# Atualizando Estatísticas utilizando dataset
+
+**DataSet** = Faz parte da Api Web do JS e permite a leitura e escrita em elementos com atributo *data-algumaCoisa*.
+
+**Serializar** = Termo usado para quando transformamos um Objeto em um texto.
+
+# Edição de dados - Editando a View
+
+Sempre criar códigos dinâmicos mantendo um padrão de nome de objetos e utilizar laços.
+
+**continue** = palavra reservada do JS que ignora o restante das intruçoes e avança.
+
+**for...in** = loop usado para para interagir sobre as propriedades de um objeto na ordem original de inserção. Também pode ser usado para cada propriedade distinta do objeto.
+
+```js
+/Objeto
+var obj = {a:1, b:2, c:3};
+
+//Para prop (propriedade) in obj (objeto) faça
+for (var prop in obj) {
+  console.log("obj." + prop + " = " + obj[prop]);
+}
+
+//A saída (output) deverá ser:
+// "obj.a = 1"
+// "obj.b = 2"
+// "obj.c = 3"
+```
+
+**rowIndex** = Ele conta a posição da linha a partir de 1, baseada no total. Temos tambem a *sectionRowIndex*, onde a diferença é que essa começa no indice 0.
+
+```js
+tr.sectionRowIndex
+```
+
+# Edição de dados - Editando imagem com FileReader
+
+**Object.assign** = Copia o valor de atributos de um objeto, criando um objeto de destino e retorna esse objeto novo.
+
+# Excluindo dados de um Objeto
+
+**confirm(mensagem: string)** = Abre uma janela de confirmação com OK e CANCELAR
+
+# Armazenando dados na sessão - Session Storage e Local Storage
+
+**sessionStorage** = recurso da Api Web usado para armazenar dados na sessão do usuário. Os dados gravados são limpos ao expirar a sessão da página. A sessão da página dura enquanto o browser está aberto e se mantém no recarregamento da página
+
+**localStorage** = funciona da mesma forma que sessionStorage, porém os dados armazenados não expiram a não ser que limpe o cache, ou ir em Application e limpar manualmente ou redefinindo as configurações do navegador;
+
+**sessionStorage.setItem(chave: string, valor: string)** = permite gravar dados na sessão. Se o browser fechar, os dados deixam de existir.
+
+**sessionStorage.getItem(chave: string)** = permite recuperar o valor da chave da sessão.
+
