@@ -72,14 +72,18 @@ class User {
 
     //  ELE GERAR UM NOVO ID PARA O USUARIO OU RETORNA UM ID DE USUARIO EXISTENTE
     getNewID() {
-       if(!window.id) window.id = 0;
-       
-       window.id++;
 
-       return window.id;
+       let usersID = parseInt(localStorage.getItem('usersID')); 
+       if(!usersID > 0) usersID = 0;
+       
+       usersID++;
+
+       localStorage.setItem('usersID', usersID);
+
+       return usersID;
     }
 
-    // 
+    // SALVA O USUARIO CADASTRADO OU EDIÇÃO NO LOCALSTORAGE
     save() {
         let users = User.getUsersStorage();
 
@@ -97,6 +101,19 @@ class User {
             
             users.push(this);
         }
+
+        localStorage.setItem('users', JSON.stringify(users));
+    }
+
+    remove() {
+        let users = User.getUsersStorage();
+
+        users.forEach((userData, index)=>{
+            if(this._id === userData._id) {
+                console.log(userData);
+                users.splice(index, 1);
+            }
+        });
 
         localStorage.setItem('users', JSON.stringify(users));
     }

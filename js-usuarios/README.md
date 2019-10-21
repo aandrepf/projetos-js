@@ -198,3 +198,4 @@ tr.sectionRowIndex
 
 **sessionStorage.getItem(chave: string)** = permite recuperar o valor da chave da sessão.
 
+**sessionStorage.removeItem(chave: string)/localStorage.removeItem(chave: string)** = remove a chave definida no parametro e seu valor completamente.
