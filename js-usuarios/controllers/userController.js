@@ -29,7 +29,8 @@ class UserController{
             
             let userOld = JSON.parse(tr.dataset.user);
 
-            let result = Object.assign({}, userOld, values); // values substitui ou cria valores nas propriedades de userOld e userOld replica seus atributos no objeto vazio(alvo) criando um novo objeto
+            // values substitui ou cria valores nas propriedades de userOld e userOld replica seus atributos no objeto vazio(alvo) criando um novo objeto
+            let result = Object.assign({}, userOld, values);
 
             this.getFoto(this.formUpdateEl).then(
                 (content) => {
@@ -39,6 +40,7 @@ class UserController{
                         result._photo = content;
                     }
 
+                    // classe User criada dentro da pasta models
                     let user = new User();
                     user.loadFromJSON(result);
                     user.save();
@@ -77,7 +79,8 @@ class UserController{
 
             this.getFoto(this.formEl).then(
                 (content) => {
-                    values.photo = content; // para para o usuario o valor da imagem que foi feito o upload
+                    // para para o usuario o valor da imagem que foi feito o upload
+                    values.photo = content;
 
                     values.save();
 

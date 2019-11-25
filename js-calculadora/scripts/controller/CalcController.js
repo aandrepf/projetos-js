@@ -173,6 +173,7 @@ class CalcController {
     }
   }
 
+  // MOSTRA NO DISPLAY A MENSAGEM "ERROR"
   setError() {
     this.displayCalc = 'ERROR';
   }

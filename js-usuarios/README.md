@@ -13,7 +13,7 @@ espaço na memória que armazenamos valores temporariamente. Usamos a palavra re
 
 Uma variável que armazena um objeto, vira uma **referência** desse objeto e assim, ela tem acesso aos atributos e métodos deste objeto.
 
-Ao nomear variáveis não utilizar caracteres especiais exceto **undeline** e o **cifrão** e também não podem começar com números.
+Ao nomear variáveis não utilizar caracteres especiais exceto **underline** e o **cifrão** e também não podem começar com números.
 
 Temos os **pseudo seletores** que seguem uma regra baseada no CSS.
 
@@ -199,3 +199,61 @@ tr.sectionRowIndex
 **sessionStorage.getItem(chave: string)** = permite recuperar o valor da chave da sessão.
 
 **sessionStorage.removeItem(chave: string)/localStorage.removeItem(chave: string)** = remove a chave definida no parametro e seu valor completamente.
+
+# Criando um servidor Web com Node.JS (NODE.JS)
+
+Para criar um servidor com Node.js, criamos uma pasta onde dentro dele existe um arquivo *index.js*.
+
+Nesse arquivo criamos uma const que ira fazer um require do módulo *http*
+
+```js
+	const http = require('http');
+```
+
+A partir dessa const criamos uma variavel que recebe um método do *http*
+
+**createServer(requestListener: RequestListener)** = cria um listener do servidor propriamente dito
+
+Com isso podemos usar o método *listen* que recebe alguns parametros;
+
+**listen(porta?: number, hostname?: string, listener:? () => void)** = método que inicia um listener e fica escutando requisições do server criado. Por padrão o node usa a porta 3000;
+
+
+# Detectando URLs Diferentes (NODE.JS)
+
+Para detectar que urls estamos acessando, dentro do método de criação do server que é um listener, temos o request onde podemos pegar a url que estamos querendo acessar.
+
+**request.url** = atributo do requestListener que informa a url acessada pelo listen;
+
+Podemos definir o response do acesso a url com algumas informações;
+
+**response.statusCode** = informa o código (padrão do protocolo Http) da requisição feita;
+
+**responde.setHeader(name: string, value: string)** = define o cabeçalho da requisição que será feita;
+
+**response.end()** = dentro do parametro do método temos o retorno da requisição para o usuário;
+
+# Entendendo o package.json e instalando o Express
+
+**npm** = Node Package Manager - entendido como um gerenciador de pacotes do Node.JS;
+
+**package.json** = um arquivo json que guarda toda configuração do projeto onde ele está embutido. Para criar um arquivo package.json rodamos dentro da pasta do projeto o comando *npm init* e assim no prompt do comando ele abre um helper e o criador preenche algumas informações que ficarão alocadas no arquivo.
+
+Para instalar pacotes usamos o comando *npm install* dentro da pasta do projeto e podemos usar a flag *--save* para salvar como uma dependência do projeto, ou seja, é um pacote necessário para o funcionamento da aplicação. Ele criará uma pasta node_modules contendo os arquivos dos pacotes que foram instalados.
+
+# Nodemon e criando um server com Express
+
+**Nodemon** = um serviço do node em que onde ele é rodado, fica observando a pasta onde ele está rodando e quando houver qualquer alteração dentro dela ele espera um pouco e sobe novamente o servidor para aplicar essa alteração automaticamente.
+
+Para criar um server com o Express, precisamos fazer um require para o express
+
+```js
+	const express = require('express');
+
+	// Para executr o express criamos uma variavel que chama o método express (que é o server criado)
+	let app = express();
+```
+
+A diferencia pro http é que não precisamos setar manualmente as url de requisição, fazendo assim diretamente a chamada via método seja get, post, put, delete já apontando para a url;
+
+**app.get(path: string, handler: RequestHandlers<ParamsDictionary> () => {})** = Método do tipo GET que faz consulta de algum dado de uma determinada url
