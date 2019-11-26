@@ -257,3 +257,64 @@ Para criar um server com o Express, precisamos fazer um require para o express
 A diferencia pro http é que não precisamos setar manualmente as url de requisição, fazendo assim diretamente a chamada via método seja get, post, put, delete já apontando para a url;
 
 **app.get(path: string, handler: RequestHandlers<ParamsDictionary> () => {})** = Método do tipo GET que faz consulta de algum dado de uma determinada url
+
+# Separando Rotas do arquivo principal
+
+o Express ele fornece um recurso de rotas através do método *Router()*, onde criamos arquivos separados cada um contendo suas rotas de requisição específicas e exportamos essas rotas para o arquivo principal;
+
+```js
+let express = require('express');
+let routes = express.Router();
+
+// exportamos as rotas do arquivo
+module.exports = routes;
+```
+
+Assim dessa forma conseguimos fazer as requisições GET, POST, PUT, DELETE via rotas. No index.js principal fazemos o requerimento das rotas
+
+```js
+let routesIndex = require('./routes/index');
+let routesUsers = require('./routes/users');
+```
+
+No index.js principal usamos o método **use(path, rotaImportada)** para utilizar os métodos.
+
+```js
+app.use(routesIndex);
+app.use('/users', routesUsers);
+```
+
+# Carregando rotas com Consign
+
+É uma extensão do NodeJS então instalamos o mesmo via npm install usando a flag --save para salvar nas dependencias da aplicação. O mesmo facilita o desenvolvimento de aplicações com separação de arquivos e carregamento automatico de scripts. Também carrega modelos, rotas e etc.
+
+```js
+const express = require('express');
+const consign = require('consign');
+
+let app = express();
+
+// inclui todos os arquivos da pasta routes no app e passa o 'app' para os arquivos de routes
+consign().includes('routes').into(app);
+```
+
+# Recebendo dados via POST e instalando o Postman
+
+Quando executamos o método post precisamos passar um body que são os dados enviados via requisição com o *req.body*.
+
+O Express em si não consegue tratar o que ele recebe do método POST, precisando assim instalar uma extensão do mesmo chamada **body-parser**.
+
+Ele analisa os corpos de solicitação de entrada em um middleware antes de seus manipuladores, disponíveis na propriedade de *req.body*.
+
+```js
+const bodyParser = require('body-parser');
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+```
+
+**json()** = Retorna middleware que analisa apenas json e analisa apenas solicitações em que o cabeçalho Content-Type corresponde à opção type. Esse analisador aceita qualquer codificação Unicode do body.
+
+**urlencoded({ extended: false })** = Retorna o middleware que analisa apenas os corpos codificados em url e analisa apenas as solicitações em que o cabeçalho Content-Type corresponde à opção type. Esse analisador aceita apenas a codificação UTF-8 do body. A sintaxe "extended" permite que objetos e matrizes avançados sejam codificados no formato codificado por URL, permitindo uma experiência semelhante a JSON com codificado por URL.
+
+# Persistencia de dados com NeDB, banco de dados JS

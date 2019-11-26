@@ -116,30 +116,3 @@ exemplo ES6:
   let objeto = new celular();
   console.log(objeto.ligar());
 ```
-# Separando Rotas do arquivo principal
-
-o Express ele fornece um recurso de rotas através do método *Router()*, onde criamos arquivos separados cada um contendo suas rotas de requisição específicas e exportamos essas rotas para o arquivo principal;
-
-```js
-let express = require('express');
-let routes = express.Router();
-
-// exportamos as rotas do arquivo
-module.exports = routes;
-```
-
-Assim dessa forma conseguimos fazer as requisições GET, POST, PUT, DELETE via rotas. No index.js principal fazemos o requerimento das rotas
-
-```js
-let routesIndex = require('./routes/index');
-let routesUsers = require('./routes/users');
-```
-
-No index.js principal usamos o método **use(path, rotaImportada)** para utilizar os métodos.
-
-```js
-app.use(routesIndex);
-app.use('/users', routesUsers);
-```
-
-# Carregando rotas com Consign
