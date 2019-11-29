@@ -16,6 +16,34 @@ Com isso podemos usar o método *listen* que recebe alguns parametros;
 
 **listen(porta?: number, hostname?: string, listener:? () => void)** = método que inicia um listener e fica escutando requisições do server criado. Por padrão o node usa a porta 3000;
 
+```js
+const http = require('http');
+const port = 3000;
+const ip = 'localhost';
+
+const server = http.createServer((req, res) => {
+  switch(req.url) {
+      case '/':
+        res.end('<h1>Home</h1>')
+      break;
+      case '/inscrever':
+        res.end('<h1>Inscreva-se</h1>');
+      break;
+      case '/local':
+        res.end('<h1>Local</h1>');
+      break;
+      case '/contato':
+        res.end('<h1>Contato</h1>');
+      break;
+  }
+  res.end('<h1>URL sem resposta definida!</h1>');
+})
+
+server.listen(port, ip, () => {
+  console.log(`Servidor rodando em http://${ip}:${port}`)
+  console.log('Para derrubar o servidor: ctrl + c');
+});
+```
 
 # Detectando URLs Diferentes
 
