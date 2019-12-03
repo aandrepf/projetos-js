@@ -81,3 +81,39 @@ form.parse(req, (err, fields, files)=> {
 **formidable.IncomingForm().parse(request, callback?: (err: any, fields: Fields, files: Files))** = Parseia uma requisição node.js contendo um formdata. Recebe 2 parametros. O primeiro é a requisição vinda do multipart/form-data, o segundo é uma calback (não obrigatória) que contem os parametros sendo, um erro caso ocorra, os campos recebidos do form e o terceiro os arquivos recebidos.
 
 ## Atualizando a view com infos de Progresso de Upload
+
+o AJAX tem um método específico para controlar o progresso do upload chamado **ajax.upload.onprogress** que retorna um objeto do tipo *ProgressEvent*. Com ele conseguimos pegar o tamanho do arquivo em bytes e o que ja foi carregado e com isso calcular o tempo para que o usuário possa ver quanto falta para terminar o upload.
+
+## Adicionando Firebase à sua aplicação Web
+
+Primeiramente é preciso ter uma conta Google para ter acesso ao Firebase e assim la dentro criar um projeto novo no Console. Depois de criado o banco, para desenvolvimento escolhemos o Realtime Database em modo teste que tem permissões de escrita e leitura abertas sem necessidades de autenticação. Depois de criado o banco, criamos a conexão para app web e colocamos a configuração no controller.
+
+```js
+// CONECTA O FIREBASE E INICIA
+connectFirebase() {
+    var firebaseConfig = {
+        // propriedades da conexão criada pelo Firebase
+    };
+    // Inicializa o Firebase
+    firebase.initializeApp(firebaseConfig);
+}
+```
+
+## Gravando dados no Firebase Realtime Database
+
+Com o firebase configurado e iniciado, podemos então começar a gravar os dados na base de dados no Firebase Realtime.
+
+```js
+// Pegamos a referencia do banco de dados
+getFirebaseRef() {
+    return firebase.database().ref('files');
+}
+```
+
+Com a referência criada fazemos a inclusão dos dados do arquivo que foi feito upload (em JSON) e gravamos na referencia (que é um array-like)
+
+```js
+this.getFirebaseRef().push().set('objeto Files com as informações do arquivo');
+```
+
+## Listando dados do Firebase Realtime Database
