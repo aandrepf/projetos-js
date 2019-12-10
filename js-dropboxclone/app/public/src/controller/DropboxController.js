@@ -6,8 +6,11 @@ class DropboxController {
         this.namefileBarEl = this.snackModalEl.querySelector('.filename');
         this.timeleftBarEl = this.snackModalEl.querySelector('.timeleft');
         this.progressBarEl = this.snackModalEl.querySelector('.mc-progress-bar-fg');
+        this.listFilesEl = document.querySelector('#list-of-files-and-directories');
+
         this.connectFirebase();
         this.initEvents();
+        this.readFiles();
     }
 
     // CONECTA O FIREBASE E INICIA
@@ -301,12 +304,68 @@ class DropboxController {
       MONTA UMA LISTA DOS ARQUIVOS COM SEU RESPECTIVO ICONE
       @file = Objeto Files contendo as informações do arquivo que foi feito upload
     */
-    getFileView(file) {
-        return `
-            <li>
-                ${this.getFileIconView(file)}
-                <div class="name text-center">${file.name}</div>
-            </li>
+    getFileView(file, key) {
+        let li = document.createElement('li');
+        li.dataset.key = key
+        li.innerHTML = `
+            ${this.getFileIconView(file)}
+            <div class="name text-center">${file.name}</div>
         `;
+        this.initEventsLi(li);
+        return li;
+    }
+
+    /** 
+     MÉTODO QUE PEGA A REFERENCIA DE FILES E A CADA ALTERAÇÃO
+     ELE TIRA UM SNAPSHOT E ASSIM COM ESSE SNAPSHOT TEMOS A COLEÇÃO DE ITENS DA REFERENCIA
+     E PODEMOS ACESSAR OS ITENS E CRIAR AS LISTAS DE ARQUIVOS NA TELA DO DROPBOX 
+    **/
+    readFiles() {
+        this.getFirebaseRef().on('value', snapshot => {
+            this.listFilesEl.innerHTML = '';
+            // snapshot do Firebase é uma coleção (array-like) portanto conseguimos fazer um forEach
+            snapshot.forEach(snapshotItem => {
+                let key = snapshotItem.key;
+                let data = snapshotItem.val(); // val() = método que retorna os valores do item da snapshot
+                this.listFilesEl.appendChild(this.getFileView(data, key));
+            });
+        });
+    }
+
+    // ADICIONA EVENTO DE CLICK NO ITEM DA LISTA DE ITENS DE ARQUIVOS DA COLEÇÃO
+    initEventsLi(li) {
+        li.addEventListener('click', e => {
+            if(e.shiftKey) {
+                let firstLi = this.listFilesEl.querySelector('li.selected');
+
+                if(firstLi) {
+                    let indexStart, indexEnd;
+                    let lis = li.parentElement.childNodes;
+                    
+                    // para percorrermos todos os li precisamos acessar o pai
+                    // para isso usamos a propriedade do DOM parentElement que retorna o pai do elemento
+                    // o childNodes retorna uma NodeList com os filhos do parentElement 
+                    lis.forEach((el, index) => {
+                        if(firstLi === el) indexStart = index;
+                        if(li === el) indexEnd = index;    
+                    });
+
+                    let index = [indexStart, indexEnd].sort();
+
+                    lis.forEach((el, i) => {
+                        if(i >= index[0] && i <= index[1]) el.classList.add('selected');
+                    });
+
+                    return true;                
+                }
+            }
+            
+            if(!e.ctrlKey) {
+                this.listFilesEl.querySelectorAll('li.selected').forEach(el => {
+                    el.classList.remove('selected');
+                });
+            }
+            li.classList.toggle('selected');
+        });
     }
 }

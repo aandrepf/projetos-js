@@ -117,3 +117,13 @@ this.getFirebaseRef().push().set('objeto Files com as informações do arquivo')
 ```
 
 ## Listando dados do Firebase Realtime Database
+
+Usamos o Firebase Realtime Database onde qualquer modificação que seja feita por ele ao pegar a referência de onde foi feita a modificação, instantaneamente a alteração é mostrada para o usuário sendo que não há necessidade de se fazer uma consulta a cada modificação. O Firebase trata de enviar a alteração. Para isso fazemos um snapshot do valor que foi inserido ou alterado via método **on()**
+
+```js
+    this.getFirebaseRef().on('value', snapshot => {
+        //como snapshot é um coleção de itens podemos usar o forEach do Array para ter acesso aos itens da referencia
+        // com isso teremos acesso à key (identificação do item) e ao data (infos do item)
+    });
+```
+
