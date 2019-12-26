@@ -117,3 +117,68 @@ this.getFirebaseRef().push().set('objeto Files com as informações do arquivo')
 ```
 
 ## Listando dados do Firebase Realtime Database
+
+No caso da aplicação como se trata de um banco de dados em tempo real, podemos tirar uma snapshot via método **fierebase.database().ref('referencia')on('value', calback)** do banco e assim listar o que está inserido na referencia que foi buscada. Como a referencia retorna um array de objetos, podemos com isso fazer um forEach do snapshot para ter acesso à *key* e ao *data* de cada item do snapshot.
+
+## Selecionando arquivo
+
+Usar a propriedade *classList* (do objeto **Element**) é uma alternativa conveniente para acessar a lista de classes de um elemento como uma seqüência delimitada por espaço através de *element.className*.
+
+**classList.toggle()** = remove ou insere uma classe única no elemento que está sendo refereciado (retorna um booleano);
+
+```js
+// Se estiver visível, remova-o, caso contrário, adicione-o
+div.classList.toggle("visible");
+```
+
+**Node.parentElement** = É uma propriedade readonly que retorna o elemento pai do Nó ou **null** se o nó não tiver elemento pai ou se não for um elemento do DOM.
+**Node.childNodes** = Propriedade readonly que retorna uma coleção de nós filhos de um dado elemento.
+
+## Criando e Disparando Eventos
+
+Para criar um novo evento que não existe na lista de eventos nativos do JS, instanciamos a classe **Event** do JS e passamos um nome para o evento
+
+```js
+this.onselectionchange = new Event('selectionchange');
+
+li.addEventListener('click', e=>{
+    // NA LISTA DE ITENS DISPARAMOS O EVENTO CRIADO AO CLICAR NO ITEM COM O MÉTODO
+    // EventTarget.dispatchEvent(evento)
+    this.listFilesEL.dispatchEvent(this.onselectionchange);
+    
+    ...
+});
+```
+
+```js
+initEvent() {
+    // No método que inicia os eventos criamos um listener para escutar
+    // as ações desse evento disparado a cada seleção do item
+    this.listFilesEL.addEventListener('selectionchange', e=> {
+        console.log('selectionchange');
+    });
+    ...
+}
+```
+
+## Excluindo Arquivos Local e no Firebase
+
+Para excluir os arquivos selecionados localmente devemos informar o path de onde será excluido o arquivo no sistema operacional. Para isso usamos uma API do NodeJs chamada [**File System**](https://nodejs.org/api/fs.html) que permite interagir com o sistema de arquivos de uma maneira modelada em torno das funções padrões do POSIX
+
+```js
+const fs = require('fs');
+```
+
+Todas as operações do sistema de arquivos têm formas síncronas e assíncronas.
+
+O formulário assíncrono sempre recebe um retorno de chamada de conclusão como seu último argumento. Os argumentos transmitidos para o retorno de chamada de conclusão dependem do método, mas o primeiro argumento é sempre reservado para uma exceção. Se a operação foi concluída com êxito, o primeiro argumento será **null** ou **undefined**.
+
+Para exlcuir do firebase usamos o método que pega a referência do banco e passamos a chave do item que será removido
+
+```js
+    this.getFirebaseRef().child(response.fields.key).remove();
+```
+
+## Firebase Storage Upload
+
+
