@@ -179,6 +179,4 @@ Para exlcuir do firebase usamos o método que pega a referência do banco e pass
     this.getFirebaseRef().child(response.fields.key).remove();
 ```
 
-## Firebase Storage Upload
-
 
