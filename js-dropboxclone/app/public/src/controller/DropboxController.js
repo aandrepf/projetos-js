@@ -1,19 +1,29 @@
 class DropboxController {
     constructor(){
+        this.currentFolder = ['hcode'];
+
+        this.onselectionchange = new Event('selectionchange'); // evento quando há uma mudança na seleção de itens da lista
+
+        this.navEl = document.querySelector('#browse-location');
         this.btnSendFileEl = document.querySelector('#btn-send-file');
         this.inputFilesEl = document.querySelector('#files');
         this.snackModalEl = document.querySelector('#react-snackbar-root');
         this.namefileBarEl = this.snackModalEl.querySelector('.filename');
         this.timeleftBarEl = this.snackModalEl.querySelector('.timeleft');
         this.progressBarEl = this.snackModalEl.querySelector('.mc-progress-bar-fg');
-        this.listFilesEl = document.querySelector('#list-of-files-and-directories');
+        this.listFilesEL = document.querySelector('#list-of-files-and-directories');
+
+        this.btnNewFolder = document.querySelector('#btn-new-folder');
+        this.btnRename = document.querySelector('#btn-rename');
+        this.btnDelete = document.querySelector('#btn-delete');
 
         this.connectFirebase();
         this.initEvents();
-        this.readFiles();
+        this.openFolder();
     }
 
-    // CONECTA O FIREBASE E INICIA
+    /**
+     * CONECTA O FIREBASE E INICIA **/
     connectFirebase() {
         // Configuração do Firebase da aplicação
         var firebaseConfig = {
@@ -29,8 +39,64 @@ class DropboxController {
         firebase.initializeApp(firebaseConfig);
     }
 
-    // MÉTODO QUE INICIA OS EVENTOS NO BOTÃO E NO INPUT FILE
+    /**
+     * MÉTODO QUE INICIA OS EVENTOS NO BOTÃO E NO INPUT FILE **/
     initEvents() {
+        // evento do botão de NOVA PASTA
+        this.btnNewFolder.addEventListener('click', e => {
+            let name = prompt('Nome da nova pasta:');
+            if(name) {
+                this.getFirebaseRef().push().set({
+                    name,
+                    type:'folder',
+                    path: this.currentFolder.join('/')
+                })
+            }
+        });
+
+        // evento do botão DELETAR
+        this.btnDelete.addEventListener('click', e => {
+            this.removeTask().then(responses=> {
+                responses.forEach(response=> {
+                    if(response.fields.key) {
+                        this.getFirebaseRef().child(response.fields.key).remove();
+                    }
+                });
+            }).catch(err=> {
+                console.error(err);
+            })
+        });
+
+        // evento do botão RENOMEAR
+        this.btnRename.addEventListener('click', e => {
+            let li = this.getSelection()[0];
+            let file = JSON.parse(li.dataset.file);
+
+            let name = prompt('Renomear o arquivo:', file.name);
+
+            if(name) {
+                file.name = name;
+                this.getFirebaseRef().child(li.dataset.key).set(file);
+            }
+        });
+
+        this.listFilesEL.addEventListener('selectionchange', e=> {
+            console.log('selectionchange');
+            switch(this.getSelection().length) {
+                case 0:
+                    this.btnDelete.style.display = 'none';
+                    this.btnRename.style.display = 'none';
+                break;
+                case 1:
+                    this.btnDelete.style.display = 'block';
+                    this.btnRename.style.display = 'block';
+                break;
+                default:
+                    this.btnDelete.style.display = 'block';
+                    this.btnRename.style.display = 'none';
+            }
+        });
+
         this.btnSendFileEl.addEventListener('click', e => {
             this.inputFilesEl.click();
         });
@@ -38,9 +104,19 @@ class DropboxController {
         this.inputFilesEl.addEventListener('change', e => {
             this.btnSendFileEl.disabled = true;
             this.uploadTask(event.target.files).then(responses => {
+                /* 
+                VINHA DO AJAX PARA UPLOAD LOCAL
                 responses.forEach(resp => {
                     console.log(resp.files['input-file']);
                     this.getFirebaseRef().push().set(resp.files['input-file']);
+                }); */
+                responses.forEach(resp => {
+                    this.getFirebaseRef().push().set({
+                        name: resp.name,
+                        type: resp.contentType,
+                        path: resp.downloadURLs[0],
+                        size: resp.size
+                    });
                 });
                 this.uploadComplete();
             }).catch(err => {
@@ -51,59 +127,194 @@ class DropboxController {
         });
     }
 
-    // METODO PARA QUANDO O UPLOAD DO ARQUIVO TERMINOU
+    /**
+     * METODO PARA QUANDO O UPLOAD DO ARQUIVO TERMINOU **/
     uploadComplete() {
         this.modalShow(false);
         this.inputFilesEl.value = '';
         this.btnSendFileEl.disabled = false;
     }
 
-    // PEGA A REFERENCIA DO FIREBASE DE FILES
-    getFirebaseRef() {
-        return firebase.database().ref('files');
+    /**
+        PEGA A REFERENCIA DO PATH NO FIREBASE
+        @path é o caminho da pasta que foi aberta e referenciada
+    **/
+    getFirebaseRef(path) {
+        if(!path) path = this.currentFolder.join('/');
+        return firebase.database().ref(path);
     }
 
-    // MOSTRA OU NÃO O MODAL DO UPLOAD
+    /**
+        MOSTRA OU NÃO O MODAL DO UPLOAD
+    **/ 
     modalShow(show = true) {
         this.snackModalEl.style.display = (show) ? 'block' : 'none';
     }
 
     /** 
+      MÉTODO UNICO USADO PARA FAZER REQUISIÇÕES VIA AJAX
+      @url url da requisição
+      @method (não obrigatório) define qual tipo de requisição usada. se não passar o padrão é GET
+      @formData (não obrigatório) define os parametros passados para a requisção. Por padrão é vazio
+      @onprogress (não obrigatório) é um método que executa algo no onprogress do ajax
+      @onloadstart (não obrigatório) é um metodo que executa algo quando começa a enviar do ajax
+    **/
+    ajax(url, method = 'GET', formData = new FormData(), onprogress = function() {}, onloadstart = function() {}) {
+        return new Promise((resolve, reject) => {
+            let ajax = new XMLHttpRequest();
+            ajax.open(method, url);
+            ajax.onload = event => {
+                try {
+                    resolve(JSON.parse(ajax.responseText));
+                } catch (e) {
+                    reject(e);
+                }
+            };
+            ajax.onerror = event => {
+                reject(event);
+            };
+            ajax.upload.onprogress = onprogress;
+            onloadstart();
+            ajax.send(formData);
+        })
+    }
+
+    /** 
      VAI RECEBER OS FILES PARA FAZER OS UPLOADS 
-     @files = contém a informação de um ou mais arquivos que foram selecionados 
+     @files contém a informação de um ou mais arquivos que foram selecionados 
      **/
     uploadTask(files) {
         let promises = [];
         [...files].forEach(file => {
-            promises.push(new Promise((resolve, reject)=> {
-                let ajax = new XMLHttpRequest();
-                ajax.open('POST', '/upload');
-                ajax.onload = event => {
-                    try {
-                        resolve(JSON.parse(ajax.responseText));
-                    } catch (e) {
-                        reject(e);
-                    }
-                };
-                ajax.onerror = event => {
-                    reject(event);
-                };
-                ajax.upload.onprogress = event => {
-                    this.uploadProgress(event, file);
-                };
-                let formData = new FormData();
-                formData.append('input-file', file);
+            
+            promises.push(new Promise((resolve, reject) => {
+                let fileRef = firebase.storage().ref(this.currentFolder.join('/')).child(file.name);
+                let task = fileRef.put(file);
+    
+                task.on('state_changed', snapshot=> {
+                    this.uploadProgress({
+                        loaded: snapshot.bytesTransferred,
+                        total: snapshot.totalBytes
+                    }, file);
+                }, error=> {
+                    console.error(error);
+                    reject(error);
+                }, ()=>{
+                    fileRef.getMetadata().then(metadata=>{
+                        resolve(metadata);
+                    }).catch(err=>{
+                        reject(err);
+                    })
+                });
+            }))
+            
+            /* UPLOAD LOCAL COM AJAX
+            
+            let formData = new FormData();
+            formData.append('input-file', file);
+            
+            promises.push(this.ajax('/upload', 'POST', formData, () => {
+                this.uploadProgress(event, file);
+            }, () => {
                 this.startUpload = Date.now();
-                ajax.send(formData);
-            }));
+            })); */
         });
         return Promise.all(promises);
     }
 
+    /** 
+     VAI REMOVER A PASTA REFERENCIADA JUNTO COM SUBPASTAS E ARQUIVOS 
+     @referencia caminho da pasta atual
+     @fileName nome do(s) arquivo(s)/pasta(s) 
+     **/
+    removeFolderTask(referencia, fileName) {
+        return new Promise((resolve, reject) => {
+            let folderRef = this.getFirebaseRef(referencia + '/' + fileName);
+            folderRef.on('value', snapshot => { // inicia o listen da referencia quando há alteração
+                folderRef.off('value'); // off para de escutar a referencia
+                snapshot.forEach(item => {
+                    let data = item.val();
+                    data.key = item.key;
+                    if(data.type === 'folder') {
+                        this.removeFolderTask(referencia + '/' + fileName, data.name).then(()=> {
+                            resolve({
+                                fields: {
+                                    key: data.key
+                                }
+                            });
+                        }).catch(err=> {
+                            reject(err);
+                        });
+                    } else if (data.type) {
+                        this.removeFile(referencia + '/' + fileName, data.name).then(()=> {
+                            resolve({
+                                fields: {
+                                    key: data.key
+                                }
+                            });
+                        }).catch(err=> {
+                            reject(err);
+                        });
+                    }
+                });
+                folderRef.remove();
+            })
+        })
+    }
+
+    /** 
+     VAI REMOVER OS ARQUIVOS SELECIONADOS TANTO FIREBASE STORAGE QUANTO NO FIREBASE DATABASE
+    **/
+    removeTask() {
+        let promises = [];
+        this.getSelection().forEach(li => {
+            let file = JSON.parse(li.dataset.file);
+            let key = li.dataset.key;
+            
+            promises.push(new Promise((resolve, reject)=> {
+                if (file.type === 'folder') {
+                    this.removeFolderTask(this.currentFolder.join('/'), file.name).then(()=>{
+                        resolve({
+                            fields: {
+                                key
+                            }
+                        });
+                    });
+                } else if (file.type) {
+                    this.removeFile(this.currentFolder.join('/'), file.name).then(()=>{
+                        resolve({
+                            fields: {
+                                key
+                            }
+                        });
+                    });
+                }
+            }));
+            /* REMOVENDO COM AJAX 
+            let formData = new FormData();
+            formData.append('path', file.path);
+            formData.append('key', key);
+
+            promises.push(this.ajax('/file', 'DELETE', formData)); */
+        });
+
+        return Promise.all(promises);
+    }
+
+    /** 
+     VAI REMOVER O ARQUIVO DE ACORDO COM A SUA REFERENCIA 
+     @referencia caminho da pasta onde está o(s) arquivo(s)
+     @fileName nome do arquivo
+     **/
+    removeFile(referencia, fileName) {
+        let fileRef = firebase.storage().ref(referencia).child(fileName);
+        return fileRef.delete();
+    }
+
     /**
         FAZ OS CALCULOS PARA EXIBIR O NOME DO ARQUIVO, TEMPO RESTANTE E BARRA DE PROGRESSO 
-        @event = objeto do tipo ProgressEvent com as informações do progresso de upload via ajax.upload.onprogress
-        @file = objeto do tipo Files vindo de Promise.all() do upload de arquivos
+        @event objeto do tipo ProgressEvent com as informações do progresso de upload via ajax.upload.onprogress
+        @file objeto do tipo Files vindo de Promise.all() do upload de arquivos
     */
     uploadProgress(event, file) {
         let timespent = Date.now() - this.startUpload;
@@ -118,7 +329,7 @@ class DropboxController {
 
     /**
      FORMATA O TEMPO RESTANTE PARA O USUÁRIO
-     @duration = tempo restante em milisegundos calculados 
+     @duration tempo restante em milisegundos calculados 
      */
     formatTimeToHuman(duration) {
         let seconds = parseInt((duration / 1000) % 60);
@@ -142,7 +353,7 @@ class DropboxController {
 
     /** 
       TRATA O ICONE DO ARQUIVO PELO TIPO DE FILE
-      @file = Objeto Files contendo as informações do arquivo que foi feito upload
+      @file Objeto Files contendo as informações do arquivo que foi feito upload
     */
      getFileIconView(file) {
         switch(file.type) {
@@ -302,11 +513,15 @@ class DropboxController {
 
     /** 
       MONTA UMA LISTA DOS ARQUIVOS COM SEU RESPECTIVO ICONE
-      @file = Objeto Files contendo as informações do arquivo que foi feito upload
+      @file Objeto Files contendo as informações do arquivo que foi feito upload vindo da base de dados Firebase Realtime
+      @key Chave de identificação do item obtido via snapshot do Firebase Realtime
     */
     getFileView(file, key) {
         let li = document.createElement('li');
-        li.dataset.key = key
+        
+        li.dataset.key = key;
+        li.dataset.file = JSON.stringify(file);
+
         li.innerHTML = `
             ${this.getFileIconView(file)}
             <div class="name text-center">${file.name}</div>
@@ -315,31 +530,106 @@ class DropboxController {
         return li;
     }
 
-    /** 
-     MÉTODO QUE PEGA A REFERENCIA DE FILES E A CADA ALTERAÇÃO
-     ELE TIRA UM SNAPSHOT E ASSIM COM ESSE SNAPSHOT TEMOS A COLEÇÃO DE ITENS DA REFERENCIA
-     E PODEMOS ACESSAR OS ITENS E CRIAR AS LISTAS DE ARQUIVOS NA TELA DO DROPBOX 
+    /**
+        RETORNA TODOS OS ITENS QUE FORAM SELECIONADOS NA LISTA
+    **/
+    getSelection() {
+        return this.listFilesEL.querySelectorAll('.selected');
+    }
+
+    /**
+        MÈTODO QUE LISTAS OS ARQUIVOS FEITOS UPLOAD DO FIREBASE
     **/
     readFiles() {
+        this.lastFolder = this.currentFolder.join('/'); // ultima pasta acessada
+
         this.getFirebaseRef().on('value', snapshot => {
-            this.listFilesEl.innerHTML = '';
-            // snapshot do Firebase é uma coleção (array-like) portanto conseguimos fazer um forEach
+            this.listFilesEL.innerHTML = '';
             snapshot.forEach(snapshotItem => {
                 let key = snapshotItem.key;
-                let data = snapshotItem.val(); // val() = método que retorna os valores do item da snapshot
-                this.listFilesEl.appendChild(this.getFileView(data, key));
+                let data = snapshotItem.val();
+
+                if(data.type) {
+                    this.listFilesEL.appendChild(this.getFileView(data, key));
+                }
             });
         });
     }
 
-    // ADICIONA EVENTO DE CLICK NO ITEM DA LISTA DE ITENS DE ARQUIVOS DA COLEÇÃO
-    initEventsLi(li) {
-        li.addEventListener('click', e => {
-            if(e.shiftKey) {
-                let firstLi = this.listFilesEl.querySelector('li.selected');
+    /**
+        ABRE A PASTA ATUAL TRAVANDO O LISTEN DO FIREBASE DA PASTA ANTERIOR PARA QUE NÃO HAJA CONFLITOS COM A LISTAGEM DOS ARQUIVOS DA PASTA ATUAL
+    **/
+    openFolder() {
+        if(this.lastFolder) this.getFirebaseRef(this.lastFolder).off('value');
+        this.renderNav();
+        this.readFiles();
+    }
 
+    /**
+        RENDERIZA O BREADCRUMB INDICANDO O CAMINHO PERCORRIDO NAS PASTAS
+    **/
+    renderNav() {
+        let nav = document.createElement('nav');
+        let path = []
+        for(let i = 0; i < this.currentFolder.length; i++) {
+            let folderName = this.currentFolder[i];
+            let span = document.createElement('span');
+            path.push(folderName);
+
+            if(i+1 === this.currentFolder.length) {
+                span.innerHTML = folderName;
+            } else {
+                span.className = 'breadcrumb-segment__wrapper';
+                span.innerHTML = `
+                    <span class="ue-effect-container uee-BreadCrumbSegment-link-0">
+                        <a href="#" data-path="${path.join('/')}" class="breadcrumb-segment">${folderName}</a>
+                    </span>
+                    <svg width="24" height="24" viewBox="0 0 24 24" class="mc-icon-template-stateless" style="top: 4px; position: relative;">
+                        <title>arrow-right</title>
+                        <path d="M10.414 7.05l4.95 4.95-4.95 4.95L9 15.534 12.536 12 9 8.464z" fill="#637282" fill-rule="evenodd"></path>
+                    </svg>
+                `;
+            }
+
+            nav.appendChild(span);
+        }
+        this.navEl.innerHTML = nav.innerHTML;
+
+        this.navEl.querySelectorAll('a').forEach(a=> {
+            a.addEventListener('click', e=>{
+                e.preventDefault();
+                this.currentFolder = a.dataset.path.split('/');
+                this.openFolder();
+            });
+        })
+    }
+
+    /**
+        CRIA EVENTOS PARA A LISTA DE ARQUIVOS E VERIFICA QUAL FOI SELECIONADO USANDO CTRL ou SHIFT ou só clicando no ELEMENTO 
+    **/
+    initEventsLi(li) {
+        // duplo clique
+        li.addEventListener('dblclick', e=>{
+            let file = JSON.parse(li.dataset.file);
+            switch(file.type) {
+                case 'folder':
+                    this.currentFolder.push(file.name);
+                    this.openFolder();
+                break;
+                default:
+                    // window.open('/file?path='+file.path); // ABRIR NA PASTA LOCAL
+                    window.open(file.path);
+            }
+        });
+
+        // unico clique
+        li.addEventListener('click', e=>{
+            // se o SHIFT estiver pressionado
+            if(e.shiftKey) {
+                let firstLi = this.listFilesEL.querySelector('.selected'); // busca o primeiro selecionado com SHIFT
                 if(firstLi) {
-                    let indexStart, indexEnd;
+                    let indexStart;
+                    let indexEnd;
                     let lis = li.parentElement.childNodes;
                     
                     // para percorrermos todos os li precisamos acessar o pai
@@ -347,25 +637,33 @@ class DropboxController {
                     // o childNodes retorna uma NodeList com os filhos do parentElement 
                     lis.forEach((el, index) => {
                         if(firstLi === el) indexStart = index;
-                        if(li === el) indexEnd = index;    
+                        if(li === el) indexEnd = index;
                     });
 
-                    let index = [indexStart, indexEnd].sort();
+                    let index = [indexStart, indexEnd].sort(); //ordena os itens
 
                     lis.forEach((el, i) => {
-                        if(i >= index[0] && i <= index[1]) el.classList.add('selected');
+                        if (i >= index[0] && i <= index[1]) {
+                            el.classList.add('selected');
+                        }
                     });
 
-                    return true;                
+                    this.listFilesEL.dispatchEvent(this.onselectionchange);
+
+                    return true;
                 }
             }
-            
+
+            // se o CTRL não estiver pressionado
             if(!e.ctrlKey) {
-                this.listFilesEl.querySelectorAll('li.selected').forEach(el => {
+                this.listFilesEL.querySelectorAll('li.selected').forEach(el=>{
                     el.classList.remove('selected');
                 });
             }
+
             li.classList.toggle('selected');
+
+            this.listFilesEL.dispatchEvent(this.onselectionchange);
         });
     }
 }
