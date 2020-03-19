@@ -15,6 +15,9 @@ class CalcController {
     this.initKeyBoardEvents();
   }
 
+  /**
+    Método que inicia alguns eventos, como mostrar a data e a hora no display da calculadora e mostrar o ultimo numero salvo
+  **/
   initialize() {
     this.setDisplayDateTime();
     setInterval(()=>{
@@ -30,12 +33,16 @@ class CalcController {
     })
   }
 
-  // ATIVA OU DESATIVA O AUDIO
+  /**
+    Ativa ou desativa o áudio
+  **/
   toggleAudio() {
     this._audioOnOff = !this._audioOnOff;
   }
 
-  // MÉTODO QUE TOCA O AUDIO
+  /**
+    Toca o som do beep
+  **/
   playAudio() {
     if(this._audioOnOff) {
       this._audio.currentTime = 0;
@@ -43,13 +50,21 @@ class CalcController {
     }
   }
 
+  /**
+    Método que atribui eventos para um elemento definido no parametro
+    @param element elemento html
+    @param events uma string com um ou mais eventos separados por espaço
+    @param fn uma callback que irá ter alguma ação específica 
+  **/
   addEventListenerAll(element, events, fn) {
     events.split(' ').forEach(event => {
       element.addEventListener(event, fn, false);
     });
   }
 
-  //ação do botão AC
+  /**
+   Ação do botão AC (All Clear)
+  */
   clearAll() {
     this._operation = [];
     this._lastNumber = '';
@@ -58,25 +73,42 @@ class CalcController {
     this.setLastNumberOnDisplay();
   }
 
-  // ação do botão CE
+  /**
+   Ação do botão CE (Cancel Entry)
+  */
   cancelEntry() {
     this._operation.pop();
     // atualizar o display da calculadora
     this.setLastNumberOnDisplay();
   }
 
+  /**
+   Retorna a ultima operação feita na calculadora
+  */
   getLastOperation() {
     return this._operation[this._operation.length-1];
   }
 
+  /**
+   Define qual será o ultimo valor da operação
+   @value valor que será passado para a ultima operação
+  */
   setLastOperation(value) {
     this._operation[this._operation.length-1] = value;
   }
 
+  /**
+   De acordo com o valor passado verifica se é um operador ou não
+   @param value valor passado para a validação
+  */
   isOperator(value) {
     return (['+', '-', '*', '%', '/'].indexOf(value) > -1);
   }
 
+  /**
+   Adiciona na lista da operação o valor passado, se o length do array for maior que 3 ele executa a operação
+   @param value valor passado para a operação
+  */
   pushOperation(value) {
     this._operation.push(value);
 
@@ -85,6 +117,9 @@ class CalcController {
     }
   }
 
+  /**
+   Retorna o resultado da operação. Caso falhe, retorna uma mensagem de ERROR na tela
+  */
   getResult() {
     try {
       return eval(this._operation.join('')); // o eval faz a operação da expressão em string
@@ -95,6 +130,9 @@ class CalcController {
     }
   }
 
+  /**
+   Método que faz o calculo da operação, obedecendo algumas regras, caso porcentagem, ou se o ultimo valor é um operador ou não
+  */
   calc() {
     let last = '';
     this._lastOperator = this.getLastItem(); // TRUE ou VAZIO retorna o último operador
@@ -125,8 +163,10 @@ class CalcController {
     this.setLastNumberOnDisplay();
   }
 
-  // PEGA O ULTIMO ITEM DENTRO DO ARRAY SE FOR OPERADOR RETORNA o operador
-  // SENÃO RETORNA O NUMERO
+  /**
+   Pega o ultimo item dentro do array de operação. Se for um operador retorna o mesmo, senão retorna o número
+   @param isOperator booleano que por padrão é definido como true (ou seja é um operador por padrão) retornando um operador. Caso false, retorna é um número
+  */
   getLastItem(isOperator = true) {
     let lastItem;
     for(let i = this._operation.length -1; i >= 0; i--) {
@@ -143,12 +183,19 @@ class CalcController {
     return lastItem;
   }
 
+  /**
+   Mostra na tela o ultimo número. Se o mesmo não exisir ele é 0
+  */
   setLastNumberOnDisplay() {
     let lastNumber = this.getLastItem(false);
     if(!lastNumber) lastNumber = 0;
     this.displayCalc = lastNumber;
   }
 
+  /**
+   Método que adiciona um número ou um operador
+   @param value valor passado podendo ser um número ou um operador
+  */ 
   addOperation(value) {
     if (isNaN(this.getLastOperation())) {
         // quando for string
@@ -173,12 +220,16 @@ class CalcController {
     }
   }
 
-  // MOSTRA NO DISPLAY A MENSAGEM "ERROR"
+  /**
+   Mostra no display da calculadora a mensagem 'ERROR'
+  */
   setError() {
     this.displayCalc = 'ERROR';
   }
 
-  // USADO PARA O BOTÃO PONTO
+  /**
+   Métoddo que verifica a ultima operação e verifica se ela contem o ponto do decimal. Caso não existe adiciona o ponto
+  */
   addDot() {
     let lastOperation = this.getLastOperation();
 
@@ -194,6 +245,10 @@ class CalcController {
     this.setLastNumberOnDisplay();
   }
 
+  /**
+   Métdo que atribui uma ação para cada botão da calculadora
+   @param value é o valor que define qual o tipo de botão está sendo pressionado
+  */
   execBtn(value) {
     this.playAudio();
     switch(value) {
@@ -242,7 +297,9 @@ class CalcController {
     }
   }
 
-  // EVENTO DE COPIAR
+  /**
+   Método que executa o CTRL+C 
+  */
   copyToClipboard() {
     let input = document.createElement('input');
     input.value = this.displayCalc;
@@ -252,7 +309,9 @@ class CalcController {
     input.remove();
   }
 
-  // EVENTO DE COLAR
+  /**
+   Método que executa o CTRL+V 
+  */
   pasteFromClipboard() {
     document.addEventListener('paste', e => {
       let text = e.clipboardData.getData('Text');
@@ -260,7 +319,9 @@ class CalcController {
     });
   }
 
-  // INICIA OS EVENTOS DE BOTÃO
+  /**
+   Método que inicializa os eventos dos botoes da calculadora 
+  */
   initButtonsEvents() {
     let buttons = document.querySelectorAll('#buttons > g, #parts > g');
     buttons.forEach((btn, index) =>{
@@ -275,7 +336,9 @@ class CalcController {
     });
   }
 
-  // INICIA OS EVENTOS DE TECLADO
+  /**
+   Método que inicializa e define uma ação de acordo com o que foi pressionado no teclado
+  */
   initKeyBoardEvents() {
     document.addEventListener('keyup', e => {
       this.playAudio();
@@ -320,6 +383,9 @@ class CalcController {
     });
   }
 
+  /**
+   Mostra no display da calculadora a dara e a hora da região (no caso pt-BR)
+  */
   setDisplayDateTime() {
     this.displayDate = this.currentDate.toLocaleDateString(this._locale, {
       day: '2-digit',
@@ -329,26 +395,47 @@ class CalcController {
     this.displayTime = this.currentDate.toLocaleTimeString(this._locale);
   }
 
+  /**
+   getter que retorna o valor da hora do display
+  */
   get displayTime() {
     return this._timeEl.innerHTML;
   }
 
+  /**
+   setter que define o valor da hora do display
+   @param value valor passado a propriedade
+  */
   set displayTime(value) {
     this._timeEl.innerHTML = value;
   }
 
+  /**
+   getter que retorna o valor da data do display
+  */
   get displayDate() {
     return this._dateEl.innerHTML;
   }
 
+  /**
+   setter que define o valor da data do display
+   @param value valor passado a propriedade
+  */
   set displayDate(value) {
     this._dateEl.innerHTML = value;
   }
 
+  /**
+   getter que retorna o valor na calculadora
+  */
   get displayCalc() {
     return this._displayCalcEl.innerHTML;
   }
 
+  /**
+   setter que define o valor da operação no display
+   @param value valor passado a propriedade
+  */
   set displayCalc(value) {
     if(value.toString().length > 10) {
       this.setError();
@@ -357,10 +444,17 @@ class CalcController {
     this._displayCalcEl.innerHTML = value;
   }
 
+  /**
+   getter que retorna a data atual
+  */
   get currentDate() {
     return new Date();
   }
 
+  /**
+   setter que define a data atual
+   @param date valor data para a propriedade
+  */
   set currentDate(date) {
     this._currentDate = date;
   }
