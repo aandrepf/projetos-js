@@ -1,6 +1,7 @@
 /node_modules
 /e2e
 /dist
+/restfull/node_modules
 usuarios-client-server/node_modules/.bin/bunyan
 usuarios-client-server/node_modules/.bin/bunyan.cmd
 usuarios-client-server/node_modules/.bin/mime
