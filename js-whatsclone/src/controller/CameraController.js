@@ -1,15 +1,29 @@
-class CameraController {
+export class CameraController {
 
     constructor(videoEl) {
         this._videoEl = videoEl;
 
-        navigator.mediaDevices.getUserMedia()
+        const constraints = {
+            video: true
+        };
+
+        navigator.mediaDevices.getUserMedia(constraints)
         .then(stream => {
-            this._videoEl.src = URL.createObjectURL(stream); // cria uma url a partir do retorno da Promise - stream
-            this._videoEl.play(); // executa o vídeo
+            console.log(stream)
+            /* this._videoEl.src = URL.createObjectURL(stream); // cria uma url a partir do retorno da Promise - stream
+            this._videoEl.play(); // executa o vídeo */
+            this._stream = stream;
+            this._videoEl.srcObject = stream;
+            this._videoEl.play();
         })
         .catch(error => {
             console.error(error);
         })
+    }
+
+    stop() {
+        this._stream.getTracks().forEach(track => {
+            track.stop();
+        });
     }
 }

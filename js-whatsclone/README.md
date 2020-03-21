@@ -159,10 +159,45 @@ O método **MediaDevices.getUserMedia()** solicita ao usuário permissão para u
 ```js
 navigator.mediaDevices.getUserMedia()
 .then(stream => {
-    this._videoEl.src = URL.createObjectURL(stream); // cria uma url a partir do retorno da Promise - stream
+    this._videoEl.srcObject = stream; // define o srcs a partir do retorno da Promise - stream
     this._videoEl.play(); // executa o vídeo
 })
 .catch(error => {
     console.error(error);
 })
 ```
+
+## Criando um servidor web com Webpack Dev Server
+
+Webpack é um empacotador de módulos estáticos para apps modernas de Javascript. Uma app moderna tem uma serie de ferramentas complexas e o webpack ele gera um bundle das ferramentas para que possam rodar no browser.
+
+**Webpack Dev Server** = é um server de desenvolvimento que podemos utilizar quando estamos desenvolvendo com webpack.
+
+Para utilizar criamos um package.json via *npm init* e instalamos as dependencias abaixo.
+
+Versões utilizadas:
+
+- webpack@3.1.0
+- webpack-dev-server@2.5.1
+
+## webpack.config.js
+
+Podemos colocar outros módulos funcionando como plugins dentro do arquivo webpack.config.js. O webpack não é obrigatório o uso do webpack.config.js assumento que o ponto de entrada **entry** é *src/index* e o **output** o *dist/main.js* tudo minificado e otimizado para produção. Entretanto geralmente será necessário utilizar o arquivo de configuração.
+
+Abaixo temos os comandos para buildar o projeto com webpack e a execução do webpack-dev-server:
+
+```js
+"scripts": {
+    "build": "webpack --config webpack.config.js",
+    "start": "webpack-dev-server" 
+},
+```
+
+## Importando e exportando módulos com webpack
+
+Para importar os módulos usamos o **import** seguido do módulo. Nesse caso o módulo deve ser exportado via **export default**. Também podemos importar o módulo entre **chaves** e no caso de exportar usamos somente o **export**.
+
+## Parando a captura da imagem da camera com getTracks()
+
+**MediaTracks.getTracks()** = método da interface *MediaStream* retorna um array de todos os objetos *MediaStreamTrack*.
+**MediaStreamTrack.stop()** = método que termina a track.

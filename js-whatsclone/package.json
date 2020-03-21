@@ -1,0 +1,16 @@
+{
+  "name": "js-whatsclone",
+  "version": "1.0.0",
+  "description": "Projeto desenvolvimento de um clone do Whatsapp - Projeto de curso de JS.",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack --config webpack.config.js",
+    "start": "webpack-dev-server" 
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "webpack": "^3.1.0",
+    "webpack-dev-server": "^2.5.1"
+  }
+}

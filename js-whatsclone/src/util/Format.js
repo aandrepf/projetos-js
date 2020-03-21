@@ -1,4 +1,4 @@
-class Format {
+export class Format {
     /**
         Método que será utilizado para criar um objeto com as propriedades nomeadas a partir do atributo id do elemento HTML retornando o nome da propriedad em
         formato camelCase

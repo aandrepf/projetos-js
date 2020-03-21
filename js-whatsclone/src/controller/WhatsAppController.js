@@ -1,4 +1,7 @@
-class WhatsAppController {
+import { CameraController } from './CameraController';
+import { Format } from './../util/Format';
+
+export class WhatsAppController {
     constructor() {
         console.log('WhatsAppController OK');
         this.elementsPrototype();
@@ -169,11 +172,12 @@ class WhatsAppController {
                 'height':'calc(100% - 0px)'
             });
 
-            let _camera = new CameraController(this.el.videoCamera); // para para o controler qual elemento irá carregar a camera
+            this._camera = new CameraController(this.el.videoCamera); // para para o controler qual elemento irá carregar a camera
         });
         this.el.btnClosePanelCamera.on('click', e=> {
             this.closeAllMainPanel();
             this.el.panelMessagesContainer.show();
+            this._camera.stop();
         });
         this.el.btnTakePicture.on('click', e=>{
             console.log('take picture');
