@@ -14777,7 +14777,7 @@ html[dir=rtl] ._2k1om .xVBLL,html[dir=rtl] .r4crx ._2-_Pl{
     height:40px
 }
 html[dir] .r4crx ._2GgBs{
-    padding-top:40px;
+    padding-top:28px;
     text-align:center
 }
 .r4crx ._3m_5X{
@@ -16136,3 +16136,17 @@ html[dir=rtl] ._2ICcy:after{
 #main {
     display:none;
 }
+._2oKVP {
+    display: flex;
+    justify-content: center;
+}
+#picture-camera {
+    display: block;
+    height: 100%;
+    width: auto;
+    text-align: center;
+}
+/* img#img-panel-document-preview {
+    width: 100%;
+    height: 100%;
+} */

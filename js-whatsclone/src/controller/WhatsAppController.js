@@ -1,4 +1,6 @@
 import { CameraController } from './CameraController';
+import { MicrophoneController } from './MicrophoneController';
+import { DocumentPreviewController } from './DocumentPreviewController';
 import { Format } from './../util/Format';
 
 export class WhatsAppController {
@@ -153,18 +155,7 @@ export class WhatsAppController {
             // de btnAttach
         });
 
-        // EVENTOS DE ENVIAR UMA FOTO NA MENSAGEM
-        this.el.btnAttachPhoto.on('click', e=>{
-            this.el.inputPhoto.click();
-        });
-        this.el.inputPhoto.on('change', e=>{
-            console.log(this.el.inputPhoto.files);
-            [...this.el.inputPhoto.files].forEach(file => {
-                console.log(file);
-            })
-        });
-
-        // EVENTOS DE TIRAR E ENVIAR FOTO PELA CAMERA
+        /* ---- TIRAR E ENVIAR FOTO PELA CAMERA ---- */ 
         this.el.btnAttachCamera.on('click', e=>{
             this.closeAllMainPanel();
             this.el.panelCamera.addClass('open');
@@ -172,58 +163,165 @@ export class WhatsAppController {
                 'height':'calc(100% - 0px)'
             });
 
-            this._camera = new CameraController(this.el.videoCamera); // para para o controler qual elemento irá carregar a camera
+            // para para o controler qual elemento irá carregar a camera
+            this._camera = new CameraController(this.el.videoCamera); 
         });
+
         this.el.btnClosePanelCamera.on('click', e=> {
             this.closeAllMainPanel();
             this.el.panelMessagesContainer.show();
             this._camera.stop();
         });
+
         this.el.btnTakePicture.on('click', e=>{
-            console.log('take picture');
+            let dataURL = this._camera.tackPicture();
+
+            this.el.pictureCamera.src = dataURL;
+            this.el.pictureCamera.show();
+            this.el.videoCamera.hide();
+            this.el.btnReshootPanelCamera.show();
+            this.el.containerTakePicture.hide();
+            this.el.containerSendPicture.show();
         });
 
-        // EVENTO DE PREVIEW E ANEXAR DOCUMENTO
+        this.el.btnReshootPanelCamera.on('click', e=> {
+            this.el.pictureCamera.hide();
+            this.el.videoCamera.show();
+            this.el.btnReshootPanelCamera.hide();
+            this.el.containerTakePicture.show();
+            this.el.containerSendPicture.hide();
+        });
+
+        this.el.btnSendPicture.on('click', e=>{
+            console.log(this.el.pictureCamera.src)
+        });
+        /* ---- end TIRAR E ENVIAR FOTO PELA CAMERA ---- */
+        
+        /* ---- ENVIAR UMA FOTO NA MENSAGEM ---- */
+        this.el.btnAttachPhoto.on('click', e=>{
+            this.el.inputPhoto.click();
+        });
+
+        this.el.inputPhoto.on('change', e=>{
+            [...this.el.inputPhoto.files].forEach(file => {
+                console.log(file);
+            })
+        });
+        /* ---- end ENVIAR UMA FOTO NA MENSAGEM ---- */
+
+        /* ---- PREVIEW E ANEXAR DOCUMENTO ---- */
         this.el.btnAttachDocument.on('click', e=>{
             this.closeAllMainPanel();
             this.el.panelDocumentPreview.addClass('open');
             this.el.panelDocumentPreview.css({
                 'height':'calc(100% - 0px)'
             });
+
+            this.el.inputDocument.click();
         });
+
+        this.el.inputDocument.on('change', e=>{
+            if(this.el.inputDocument.files.length) {
+                this.el.panelDocumentPreview.css({
+                    'height':'1%'
+                });
+
+                let file = this.el.inputDocument.files[0];
+
+                this._documentPreviewController = new DocumentPreviewController(file);
+
+                this._documentPreviewController.getPreviewData().then(data => {
+
+                    this.el.imgPanelDocumentPreview.src = data.src;
+                    this.el.infoPanelDocumentPreview.innerHTML = data.info;
+                    this.el.imagePanelDocumentPreview.show();
+                    this.el.filePanelDocumentPreview.hide();
+
+                    this.el.panelDocumentPreview.css({
+                        'height':'calc(100% - 0px)'
+                    });
+
+                }).catch(err => {
+                    this.el.panelDocumentPreview.css({
+                        'height':'calc(100% - 0px)'
+                    });
+
+                    switch (file.type) {
+                       case 'application/vnd.ms-excel':
+                       case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
+                        this.el.iconPanelDocumentPreview.className = 'jcxhw icon-doc-xls';
+                       break;
+                       case 'application/vnd.ms-powerpoint':
+                       case 'application/vnd.openxmlformats-officedocument.presentationml.presentation':
+                        this.el.iconPanelDocumentPreview.className = 'jcxhw icon-doc-ppt';
+                       break;
+                       case 'application/msword':
+                       case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+                        this.el.iconPanelDocumentPreview.className = 'jcxhw icon-doc-doc';
+                       break;
+                       default:
+                        this.el.iconPanelDocumentPreview.className = 'jcxhw icon-doc-generic';
+                    }
+
+                    this.el.filenamePanelDocumentPreview.innerHTML = file.name;
+                    this.el.imagePanelDocumentPreview.hide();
+                    this.el.filePanelDocumentPreview.show();
+                 })
+            }
+        });
+
         this.el.btnClosePanelDocumentPreview.on('click', e=>{
             this.closeAllMainPanel();
+            this.el.imagePanelDocumentPreview.hide();
             this.el.panelMessagesContainer.show();
         });
+
         this.el.btnSendDocument.on('click', e=>{
             console.log('send document');
-        })
+        });
+        /* ---- end PREVIEW E ANEXAR DOCUMENTO ---- */
 
-        // EVENTOS DE ADICIONAR ENVIAR CONTATO NA MENSAGEM
+        /* ---- ADICIONAR ENVIAR CONTATO NA MENSAGEM ---- */
         this.el.btnAttachContact.on('click', e=>{
             this.el.modalContacts.show();
         });
+
         this.el.btnCloseModalContacts.on('click', e=>{
             this.el.modalContacts.hide();
-        })
+        });
+        /* ---- end ADICIONAR ENVIAR CONTATO NA MENSAGEM ---- */
 
+        /* ---- ENVIAR AUDIO E EMOJI NA MENSAGEM ---- */
         this.el.btnSendMicrophone.on('click', e=>{
             this.el.recordMicrophone.show();
             this.el.btnSendMicrophone.hide();
             this.startRecordMicrophoneTimer();
+
+            this._microphoneController = new MicrophoneController();
+
+            this._microphoneController.on('ready', audio => {
+                console.log('event ready');
+                this._microphoneController.startRecorder();
+            })
         });
+
         this.el.btnCancelMicrophone.on('click', e=>{
+            this._microphoneController.stopRecorder();
             this.closeRecordMicrophone();
         });
+
         this.el.btnFinishMicrophone.on('click', e=>{
+            this._microphoneController.stopRecorder();
             this.closeRecordMicrophone();
         });
+
         this.el.inputText.on('keypress', e=> {
             if(e.key === 'Enter' && !e.ctrlKey) {
                 e.preventDefault();
                 this.el.btnSend.click();
             }
         });
+
         this.el.inputText.on('keyup', e=>{
             if(this.el.inputText.innerHTML.length) {
                 this.el.inputPlaceholder.hide();
@@ -235,9 +333,11 @@ export class WhatsAppController {
                 this.el.btnSend.hide();
             }
         });
+
         this.el.btnSend.on('click', e=> {
             console.log(this.el.inputText.innerHTML)
         });
+
         this.el.btnEmojis.on('click', e=>{
             this.el.panelEmojis.toggleClass('open');
         });
@@ -276,6 +376,7 @@ export class WhatsAppController {
                 this.el.inputText.dispatchEvent(new Event('keyup')); // forçamos no elemento um evento de keyup
             });
         });
+        /* ---- end ENVIAR AUDIO E EMOJI NA MENSAGEM ---- */
     }
 
     /**

@@ -197,7 +197,54 @@ Abaixo temos os comandos para buildar o projeto com webpack e a execução do we
 
 Para importar os módulos usamos o **import** seguido do módulo. Nesse caso o módulo deve ser exportado via **export default**. Também podemos importar o módulo entre **chaves** e no caso de exportar usamos somente o **export**.
 
+```js
+const path = require('path');
+
+module.exports = {
+    entry: { // onde são apontados os js de entrada necessarios
+        'app': './src/app.js',
+        'pdf.worker': 'pdfjs-dist/build/pdf.worker.entry.js'
+    },
+    output: { // caminho quando a aplicação é compilada
+        filename: '[name].bundle.js', // [name] - como temos 2 arquivos de entry ele define um bundle para cada um
+        path: path.join(__dirname, '/dist'), // join - ele concatena a pasta dist com os caminhos dos arquivos
+        publicPath: 'dist'
+    }
+};
+```
+
 ## Parando a captura da imagem da camera com getTracks()
 
 **MediaTracks.getTracks()** = método da interface *MediaStream* retorna um array de todos os objetos *MediaStreamTrack*.
 **MediaStreamTrack.stop()** = método que termina a track.
+
+## gerando imagens com canvas
+
+A **Canvas API** provê maneiras de desenhar gráficos via JavaScript e via elemento HTML *canvas* gerando um *HTMLCanvasElement*. Entre outras coisas, ele pode ser utilizado para animação, gráficos de jogos, visualização de dados, manipulação de fotos e processamento de vídeo em tempo real.
+
+**HTMLCanvasElement.getContext()** = método que pega o contexto daquele elemento - a coisa sobre a qual o desenho será renderizado.
+**HTMLCanvasElement.drawImage(image, x, y, width, height)** = método que desenha uma imagem, canvas ou video dentro do canvas. Pode desenhar partes de uma imagem e aumentar ou reduzir o tamanho de uma imagem.
+
+## Lendo a capa de um arquivo PDF e gerando uma imagem com PDF.js
+
+É uma lib provida pela Mozilla, onde é possível trabalhar com arquivos pdf. Inclusive o Whatsapp web usa essa lib no seu projeto. Depois de instalado a lib com **npm install pdfjs-dist** devemos fazer o require.
+
+**webworker** = é um script JS que roda em segundo plano independentemente de outros scripts JS e não afeta a performance da pagina, por ser assincrono. Pode ficar em loop até que ele termine a ação que ele tenha que executar.
+
+```js
+const pdfJSLib = require('pdfjs-dist');
+const path = require('path'); // lib para resolver caminhos de diretorios
+
+// é um webworker nativo lib PDF.js
+pdfJSLib.GlobalWorkerOptions.workerSrc = path.resolve(__dirname, '../../dist/pdf.worker.bundle.js');
+```
+
+**FileReader.readAsArrayBuffer(Blob || File)** = O método é utilizado para ler o conteúdo de um Blob ou File específico. Quando a operação de leitura é finalizada, o *readyState* torna-se DONE (finalizado), e o evento loadend é acionado. Então, o atributo result retorna um *ArrayBuffer* representando os dados do arquivo.
+
+**pdfJSLib.getDocument(new Uint8Array(reader.result))** = esse método é o principal ponto de entrada para carregar um PDF e interagir com ele. No caso de um arquivo local devemos converter o memso em um array de 8bits com o *Uint8Array*. Esse método é uma promise que retorna um objeto com as informações do arquivo feito upload.
+
+## gravando audio com MediaRecorder
+
+A interface *MediaRecorder* da **API MediaStream Recording** que fornece funcionalidade para gravar facilmente mídias. É criado usando o construtor MediaRecorder().
+
+**MediaRecorder.isTypeSupported(mimeType)** = método estático que retorna um booleano onde é true se o tipo MIME é suportado pelo browser para gravação.
