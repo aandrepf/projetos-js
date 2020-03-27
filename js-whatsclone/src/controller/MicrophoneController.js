@@ -77,6 +77,7 @@ export class MicrophoneController extends ClassEvent {
 
             // inicia a gravação
             this._mediaRecorder.start();
+            this.startTimer();
         }
     }
 
@@ -87,6 +88,20 @@ export class MicrophoneController extends ClassEvent {
         if(this.isAvailable()) {
             this._mediaRecorder.stop();
             this.stop();
+            this.stopTimer();
         }
+    }
+
+    /** Método que inicia a contagem do tempo de gravação do microfone */
+    startTimer() {
+        let start = Date.now();
+        this._recordMicrophone = setInterval(() => {
+            this.trigger('recordtimer', (Date.now() - start));
+        }, 100);
+    }
+
+    /** Método que termina a contagem do tempo de gravação do microfone */
+    stopTimer() {
+        clearInterval(this._recordMicrophone);
     }
 }

@@ -3,6 +3,7 @@
 /dist
 /restfull/node_modules
 js-whatsclone/node_modules/
+js-wordcloud/node_modules/
 usuarios-client-server/node_modules/.bin/bunyan
 usuarios-client-server/node_modules/.bin/bunyan.cmd
 usuarios-client-server/node_modules/.bin/mime

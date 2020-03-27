@@ -248,3 +248,75 @@ pdfJSLib.GlobalWorkerOptions.workerSrc = path.resolve(__dirname, '../../dist/pdf
 A interface *MediaRecorder* da **API MediaStream Recording** que fornece funcionalidade para gravar facilmente mídias. É criado usando o construtor MediaRecorder().
 
 **MediaRecorder.isTypeSupported(mimeType)** = método estático que retorna um booleano onde é true se o tipo MIME é suportado pelo browser para gravação.
+
+## Firebase e Firebase Authentication
+
+Para configurar o Firebase Storage e o Firebase Store, criamos um util com a classe *Firebase*. Nele importamos a lib do firebase instalada via npm. nele criamos um método que inicia as configurações que são geradas no momento que se cria o banco de dados no console do Firebase na internet.
+
+```js
+ /** Inicializa o Firebase */
+init() {
+    // verificamos se o Firebase já foi inicializado em alguma instancia
+    if(!window._initialized) { // definimos a variavel globalmente para que não seja diferente em mais de uma instancia
+        firebase.initializeApp(this._config); // config que foi gerado no momento de criaçao do banco
+        window._initialized = true;
+    }
+}
+```
+
+Com o Firebase inicializado, habilitamos a autenticação via um um provedor do Google (uma conta). Criamos um método que fará a autenticação via um popup onde selecionamos uma conta google para se autenticar
+
+**firebase.auth().signInWithPopup(provider)** = Autentica um cliente Firebase usando um fluxo de autenticação OAuth através de um pop-up. O método retorna uma *Promise* que se bem-sucedido, retorna o usuário conectado junto com a credencial do provedor. Se a entrada não tiver êxito, retornará um objeto de erro contendo informações adicionais sobre o erro.
+
+```js
+/** Autentica o usuário via login de uma conta no Google */
+initAuth() {
+    return new Promise((s, f) => {
+        let provider = new firebase.auth.GoogleAuthProvider(); // autenticação via login do Google
+        firebase.auth().signInWithPopup(provider).then(
+            (result) => {
+                let token = result.credential.accessToken;
+                let user = result.user;
+                s({
+                    user,
+                    token
+                });
+            } 
+        ).catch(err => f(err))
+    })
+}
+```
+
+## Salvando os dados do usuario no firebase
+
+Como trabalharemos com o modelo MVC, criamos um model para fazer referencia ao Usuario, onde no mesmo importamos a lib do Firebase. Com isso criamos um método que retornará uma referencia a uma coleção de usuarios.
+
+```js
+/** Método que retora a referencia a coleção de usuarios */
+static getRef() {
+    return Firebase.db().collection('/users');
+}
+```
+
+Feito a referencia, precisamos criamos os documentos a partir de um id que no caso será o e-mail do usuário
+
+```js
+/** Metodo que que pega a Referencia da coleção através de um id especificado */
+static findByEmail(email) { // email no caso será o email funcionando como um id    
+    return User.getRef().doc(); // criamos o documento baseado no email do usuário autenticado
+}
+```
+
+Feito isso, importamos o model no controller do Whatsapp para que, na autenticação criamos um usuario, passamos o email para criar o documento do usuario no banco e setamos os dados do documento do mesmo, sendo que os dados salvos serão nome, email e foto do usuario.
+
+```js
+this._user = new User(); // criamos um novo usuario
+
+let userRef = User.findByEmail(response.user.email); // o email será a referencia do documento da coleção
+
+userRef.set({ // definimos os dados que serão inseridos no documento
+    name: response.user.displayName,
+    email: response.user.email,
+    photo: response.user.photoURL 
+})
+```
