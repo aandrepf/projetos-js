@@ -29,7 +29,10 @@ export class CameraController {
         });
     }
 
-    tackPicture(mimeType = 'image/png') {
+    /**
+     Método que tira foto
+     */
+    takePicture(mimeType = 'image/png') {
         let canvas = document.createElement('canvas');
         canvas.setAttribute('width', this._videoEl.videoWidth);
         canvas.setAttribute('height', this._videoEl.videoHeight);

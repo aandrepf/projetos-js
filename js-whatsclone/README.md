@@ -320,3 +320,260 @@ userRef.set({ // definimos os dados que serão inseridos no documento
     photo: response.user.photoURL 
 })
 ```
+
+## btoa
+
+**WindowOrWorkerGlobalScope.btoa(stringToEncode)** = método que cria uma sequência ASCII codificada em Base64 a partir de uma sequência binária (ou seja, um objeto String no qual cada caractere na sequência é tratado como um byte de dados binários).
+
+**WindowBase64.atob(dadoCodificado)** = decodifica uma string de dados que foi codificada através da codificação base-64.
+
+Você pode usar o método **window.btoa()** para codificar e transmitir dados que, se não codificados, podem causar problemas de comunicação. Após transmití-los pode-se usar o método **window.atob()** para decodificar os dados novamente.
+
+```js
+
+var dadoCodificado = window.btoa("Olá, mundo"); // codifica a string
+var dadoDecodificado = window.atob(dadoCodificado); // decodifica a string
+
+```
+
+## fetch
+
+A API Fetch tem o método global **fetch()** que fornece uma maneira fácil e lógica para buscar recursos de forma assíncrona através da rede. Antes usavamos o **XMLHttpRequest** para esse tipo de busca. Possui um ponto único para conceitos lógicos de HTTP como CORS e extensões HTTP.
+
+- A Promise retornada de fetch resolve erros (404 ou 500) com status OK definido como false.
+- Headers de cookies serão ignorados silenciosamente.
+- Não envia cookies.
+
+```js
+
+// enviando o canvas da imagem gerada como mensagem
+fetch(canvas.toDataURL(mimeType))
+.then(res => { return res.arrayBuffer(); })
+.then(buffer => { return new File([buffer], fileName, { type: mimeType }); })
+.then(file => {
+    Message.sendImage(this._contactActive.chatId, this._user.email, file);
+    this.el.btnSendPicture.disabled = false;
+    this.closeAllMainPanel();
+    this._camera.stop();
+    this.el.btnReshootPanelCamera.hide();
+    this.el.pictureCamera.hide();
+    this.el.videoCamera.show();
+    this.el.containerSendPicture.hide();
+    this.el.containerTakePicture.show();
+    this.el.panelMessagesContainer.show();
+});
+
+```
+
+## parentNode e replaceChild
+
+**Node.parentNode** = propriedade do DOM (somente leitura) que retorna um node parente do node referenciado na arvore DOM.
+
+```js
+
+// Obtém o primeiro <li> de uma lista
+var li = document.getElementsById('li-first');
+// A partir do <li> obtido, obtém o element <ul>
+var ul = li.parentNode;
+
+```
+
+**parentNode.replaceChild(novaChild, antigaChild)** = Substitui o elemento filho especificado por outro. O parametro *novaChild* é o novo elemento que será inserido no lugar de *antigaChild* que é o elemento existente a ser substituido. O diferencial desse para innerHTML é que não é perdido nenhuma referência como eventos e etc.
+
+
+## AudioCOntext API
+
+A interface **AudioContext**  representa um grafo de processamento de áudio construído a partir de nós de áudio conectados, cada um representado por um *AudioNode* Um contexto de áudio controla a criação dos nós que contém e a execução do processamento de áudio, ou decodificação.
+
+**AudioContext.decodeAudioData()** = Decodifica assincronamente dados de arquivos de áudio contidos em **ArrayBuffer**. Nesse caso, o ArrayBuffer geralmente é carregado a partir de um atributo de resposta **XMLHttpRequest** definir o responseType para arraybuffer. Esse método funciona apenas em arquivos completos, não fragmentos de arquivos de áudio.
+
+## Firebase Cloud Functions
+
+Para usar o cloud functions devemos instalar o **firebase-tools** globalmente no ambiente com o **npm i -g firebase-tools**.
+
+Depois no prompt de comando devemos autenticar com a conta do google para o firebase com o comando **firebase login**.
+
+Depois de logado rodamos o comando **firebase init functions** dentro da pasta do projeto para que ele salve arquivos e configurações que serão utilizadas no projeto. Ele irá perguntar se quer usar um projeto existente, se deseja instalar as dependencias, qual linguagem utilizar (Javascript ou Typescript) e etc. 
+
+Feito a instalação ele cria alguns arquivos do firebase e uma pasta functions que é onde ficará as funções a serem usadas pelo firebase.
+
+Cada function que for criada tera que ser feito o deploy da mesma através do comando **firebase deploy --only functions**
+
+```js
+const functions = require('firebase-functions');
+
+let admin = require('firebase-admin');
+admin.initializeApp(functions.config().firebase);
+
+let db = admin.firestore();
+
+const keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+
+let encode64 = function (input) {
+    input = escape(input);
+    var output = "";
+    var chr1, chr2, chr3 = "";
+    var enc1, enc2, enc3, enc4 = "";
+    var i = 0;
+ 
+    do {
+        chr1 = input.charCodeAt(i);
+        chr2 = input.charCodeAt(i);
+        chr3 = input.charCodeAt(i);
+ 
+        enc1 = chr1 >> 2;
+        enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+        enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+        enc4 = chr3 & 63;
+ 
+        if (isNaN(chr2)) {
+            enc3 = enc4 = 64;
+        } else if (isNaN(chr3)) {
+            enc4 = 64;
+        }
+ 
+        output = output +
+            keyStr.charAt(enc1)  +
+            keyStr.charAt(enc2)  +
+            keyStr.charAt(enc3)  +
+            keyStr.charAt(enc4);
+        chr1 = chr2 = chr3 = "";
+        enc1 = enc2 = enc3 = enc4 = "";
+    } while (i < input.length);
+ 
+    return output;
+}
+ 
+let decode64 = function (input) {
+    var output = "";
+    var chr1, chr2, chr3 = "";
+    var enc1, enc2, enc3, enc4 = "";
+    var i = 0;
+ 
+    var base64test = /[^A-Za-z0-9=]/g;
+    if (base64test.exec(input)) {
+        console.error("There were invalid base64 characters in the input text.\n" +
+            "Valid base64 characters are A-Z, a-z, 0-9, '', '/',and '='\n" +
+            "Expect errors in decoding.");
+    }
+    input = input.replace(/[^A-Za-z0-9=]/g, "");
+ 
+    do {
+        enc1 = keyStr.indexOf(input.charAt(i));
+        enc2 = keyStr.indexOf(input.charAt(i));
+        enc3 = keyStr.indexOf(input.charAt(i));
+        enc4 = keyStr.indexOf(input.charAt(i));
+ 
+        chr1 = (enc1 << 2) | (enc2 >> 4);
+        chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+        chr3 = ((enc3 & 3) << 6) | enc4;
+ 
+        output = output + String.fromCharCode(chr1);
+ 
+        if (enc3 !== 64) {
+            output = output + String.fromCharCode(chr2);
+        }
+        if (enc4 !== 64) {
+            output = output + String.fromCharCode(chr3);
+        }
+ 
+        chr1 = chr2 = chr3 = "";
+        enc1 = enc2 = enc3 = enc4 = "";
+ 
+    } while (i < input.length);
+ 
+    return unescape(output);
+}
+
+exports.saveLastMessage = functions.firestore.document('/chats/{chatId}/messages/{messageId}').onCreate((change, context) => {
+    let chatId = context.params.chatId;
+    let messageId = context.params.messageId;
+
+    console.log('[CHAT ID]', chatId);
+    console.log('[MESSAGE ID]', messageId);
+
+    return new Promise((res, rej) => {
+        let chatRef = db.collection('chats').doc(chatId);
+        chatRef.onSnapshot(snapChat => {
+            let chatDoc = snapChat.data();
+
+            console.log('[CHAT DATA]', chatDoc);
+
+            let messageRef = chatRef.collection('messages').doc(messageId).onSnapshot(snapMessage => {
+                let messageDoc = snapMessage.data();
+
+                console.log('[MESSAGE DATA]', chatDoc);
+
+                let userFrom = messageDoc.from;
+                let userTo = Object.keys(chatDoc.users).filter(key => {
+                    return (key !== encode64(userFrom))
+                })[0];
+
+                console.log('[USER FROM]', userFrom);
+                console.log('[USER TO]', uderTo);
+
+                db.collection('users').doc(decode64(userTo)).collection('contacts').doc(encode64(userFrom)).set({
+                    lastMessage: messageDoc.content,
+                    lastMessageTime: new Date()
+                }, { merge: true })
+                .then(e => {
+                    console.log('[FINISH]', new Date());
+                    res(e);
+                    return true;
+                })
+                .catch(err => {
+                    console.log('[ERROR]', err);
+                    throw new Error(err);
+                });
+            });
+        });
+    });
+});
+
+```
+
+## Notificações via Browser usando a api Notification
+
+```js
+/** Método que verifica se foi permitido receber notificações */
+checkNotifications() {
+    if (typeof Notification === 'function') {
+        if (Notification.permission !== 'granted') {
+            this.el.alertNotificationPermission.show();
+        } else {
+            this.el.alertNotificationPermission.hide();
+        }
+
+        this.el.alertNotificationPermission.on('click', e => {
+            Notification.requestPermission(permission => {
+                if (permission === 'granted') {
+                    this.el.alertNotificationPermission.hide();
+                    console.info('notificações permitidas!');
+                }
+            });
+        })
+    }
+}
+
+/** 
+ Método que exibe a notificação e seu conteúdo
+    @data dados da mensagem para exibir na notificação
+*/
+notification(data) {
+    if (Notification.permission === 'granted' && !this._active) {
+        let n = new Notification(this._contactActive.name, {
+            icon: this._contactActive.photo,
+            body: data.content
+        });
+
+        let sound = new Audio('./../../audio/alert.mp3');
+        sound.currentTime = 0;
+        sound.play();
+
+        setTimeout(() => {
+            if (n) n.close();
+        }, 3000);
+    }
+}
+```
+
