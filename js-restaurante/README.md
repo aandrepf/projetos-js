@@ -352,6 +352,12 @@ class GridComponent {
   // de acordo com o listener nos configs
   fireEvent(eventName, args) { /* ... */ }
 
+  // método que dispara o evento dos botões de update do painel admin
+  btnUpdateClick(event) { /* ... */ }
+
+  // método que dispara o evento dos botões de delete do painel admin
+  btnDeleteClick(e) { /* ... */ }
+
   // retornar os dados que estam armazenados no dataset da TR da tabela
   getTrData(e) { /* ... */ }
 }
