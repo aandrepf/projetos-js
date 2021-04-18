@@ -4,6 +4,7 @@
 /restfull/node_modules
 js-whatsclone/node_modules/
 js-wordcloud/node_modules/
+*.package-lock.json
 usuarios-client-server/node_modules/.bin/bunyan
 usuarios-client-server/node_modules/.bin/bunyan.cmd
 usuarios-client-server/node_modules/.bin/mime
